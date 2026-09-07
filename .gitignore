@@ -1,0 +1,35 @@
+# ── Secrets & environment ──────────────────────────────────────
+.env
+.env.*
+*.pem
+*.key
+
+# ── OS files ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE / editor ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Logs & caches ──────────────────────────────────────────────
+*.log
+npm-debug.log*
+node_modules/
+.cache/
+
+# ── Build output (none required — static site) ─────────────────
+dist/
+build/
+
+# ── Generated artifacts (regenerate with: python analyze.py) ───
+stats.json
+
+# ── Temp / backup files ────────────────────────────────────────
+*~
+*.bak
+*.tmp
+~$*

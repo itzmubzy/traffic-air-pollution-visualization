@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive data story on how vehicle maintenance standards and urban traffic practices shape air pollution (AQI and PM2.5) across the United States, 2015–2025.">
+  <meta name="theme-color" content="#070a13">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://d3js.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Air Pollution from Traffic: A Hidden Public Health Crisis">
+  <meta property="og:description" content="Interactive data story — vehicle maintenance standards, urban traffic and air quality across 51 US states, 2015–2025.">
+  <title>Air Pollution from Traffic: A Hidden Public Health Crisis — Interactive Data Story</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070a13'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%234e9ff5' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23f0854a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ══ HERO ════════════════════════════════════════════════ -->
+  <header class="hero">
+    <div class="hero-kicker">Interactive Data Story · United States · Jan 2015 — Dec 2025</div>
+    <h1>Air Pollution from Traffic: A <span class="grad-text">Hidden Public Health Crisis</span></h1>
+    <p class="hero-sub">
+      Why <b>vehicle maintenance</b> and <b>urban practices</b> matter — 51 states · 132 months ·
+      <b>6,700 state-month records</b>. Traffic volume from U.S. DOT FHWA joined with air quality
+      from EPA AirData to trace how standards shape the air we breathe.
+    </p>
+    <div class="hero-byline">K M Mubin · ID 24-57300-2 · Data Visualization [A]</div>
+    <div class="rq-card glass">
+      <div class="rq-label">Research Question · The Core Inquiry</div>
+      <p>How do <b>vehicle maintenance standards</b> affect air pollution levels?</p>
+    </div>
+  </header>
+
+
+
+  <!-- ══ CONTROLS ════════════════════════════════════════════ -->
+  <section class="controls-section glass">
+    <div class="controls-bar">
+
+      <div class="control-group">
+        <label for="global-year">Timeline Animation &amp; Year Filter</label>
+        <div class="year-slider-wrap">
+          <div class="year-slider-track">
+            <button id="btn-play-year" class="btn-play" aria-label="Play timeline animation" title="Animate through 2015–2025">
+              <span id="play-icon" aria-hidden="true">▶</span>
+            </button>
+            <span class="year-edge" id="year-min">2015</span>
+            <input type="range" id="global-year" step="1"
+                   aria-label="Select year" aria-valuemin="2015" aria-valuemax="2025">
+            <span class="year-edge" id="year-max">2025</span>
+          </div>
+          <div class="year-value-row">
+            <span class="year-display" id="year-display" aria-live="polite">All</span>
+            <button id="all-years-btn" class="btn-reset-year is-active"
+                    aria-label="Show all years">All Years</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="global-metric">Metric Focus</label>
+        <select id="global-metric" aria-label="Select metric"></select>
+      </div>
+
+      <div class="control-group">
+        <label for="global-state">State Selection</label>
+        <div class="state-select-row">
+          <select id="global-state" aria-label="Select state">
+            <option value="">All States</option>
+          </select>
+          <button id="clear-state-btn" class="btn-reset-year" aria-label="Clear state selection">Clear</button>
+        </div>
+      </div>
+
+      <div class="control-group control-group-presets">
+        <label>Quick Cohorts</label>
+        <div class="quick-cohorts-row" id="quick-cohorts-row">
+          <button class="btn-cohort" data-cohort="west" title="CA, OR, WA">West Coast</button>
+          <button class="btn-cohort" data-cohort="midwest" title="IL, IN, OH, MI, WI">Industrial Midwest</button>
+          <button class="btn-cohort" data-cohort="top-polluted" title="Top 5 most polluted states">Top 5 Hotspots</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div id="filter-bar" class="filter-bar">
+    <span class="filter-pill"><span class="pill-key">Loading</span><span class="pill-val">—</span></span>
+  </div>
+
+
+  <!-- ══ 01 · MACRO — WHERE ══════════════════════════════════ -->
+  <div class="story-layout">
+  <main class="story-main">
+  <section class="story-section" id="section-where">
+    <div class="section-label">01 · Macro — Where the problem lives</div>
+    <div class="panel glass">
+      <div class="panel-head">
+        <div>
+          <div class="chart-title">Geography of <span id="map-metric-label">emission efficiency</span></div>
+          <div class="chart-sub">Click any state to isolate its complete journey · hover for EPA benchmark comparison</div>
+        </div>
+        <div id="map-mode" class="mode-toggle"></div>
+      </div>
+      <div id="map-wrapper"></div>
+    </div>
+  </section>
+
+  <!-- ══ 02 · MACRO — WHEN ═══════════════════════════════════ -->
+  <section class="story-section" id="section-when">
+    <div class="section-label">02 · Macro — When it gets worse</div>
+    <div class="panel glass">
+      <div class="panel-head">
+        <div>
+          <div class="chart-title">National trend &amp; seasonality — <span id="area-chart-metric-label">selected metric</span></div>
+          <div class="chart-sub">Drag/brush across any date range to filter the entire story · shaded blue bars highlight winter months</div>
+        </div>
+      </div>
+      <div id="area-chart-container"></div>
+    </div>
+  </section>
+
+  <!-- ══ 03 · RELATIONSHIPS ══════════════════════════════════ -->
+  <section class="story-section" id="section-relationships">
+    <div class="section-label">03 · Relationships — Traffic vs. clean fleets</div>
+    <div class="duo-grid">
+
+      <div class="panel glass">
+        <div class="panel-head">
+          <div>
+            <div class="chart-title">Does more traffic mean dirtier air?</div>
+            <div class="chart-sub">One dot = one state · regression line shows national correlation strength</div>
+          </div>
+        </div>
+        <div id="scatter-wrapper"></div>
+      </div>
+
+      <div class="panel glass">
+        <div class="panel-head">
+          <div>
+            <div class="chart-title">Four corners of the clean-fleet map</div>
+            <div class="chart-sub">Split at medians: Double Burden (Top-Right) vs Benchmark Clean (Bottom-Left)</div>
+          </div>
+        </div>
+        <div id="quadrant-wrapper"></div>
+      </div>
+
+    </div>
+  </section>
+  <!-- ══ 04 · MICRO ══════════════════════════════════════════ -->
+  <section class="story-section" id="section-micro">
+    <div class="section-label">04 · Micro — Monthly patterns per state</div>
+    <div class="duo-grid">
+
+      <div class="panel glass">
+        <div class="panel-head">
+          <div>
+            <div class="chart-title">Seasonal rhythm — state × month matrix</div>
+            <div class="chart-sub">Ranked hottest → cleanest · click state labels or month columns to investigate</div>
+          </div>
+        </div>
+        <div id="heatmap-wrapper"></div>
+      </div>
+
+      <div class="panel glass">
+        <div class="panel-head">
+          <div>
+            <div class="chart-title">Side-by-side state journeys</div>
+            <div class="chart-sub">Shared scale with national reference dashed line · select states to compare trajectories</div>
+          </div>
+        </div>
+        <div id="small-multiples-wrapper"></div>
+      </div>
+
+    </div>
+  </section>
+  </main><!-- /.story-main -->
+
+  <!-- ══ STORY INSIGHTS SIDE PANEL ═══════════════════════════ -->
+  <aside class="insight-panel glass" id="insight-panel" aria-label="Story insights">
+    <div class="insight-head">
+      <div>
+        <div class="insight-title">Story Insights</div>
+        <div class="insight-sub">Follows your filters &amp; selection</div>
+      </div>
+      <button type="button" id="insight-close" class="insight-close" aria-label="Close insights panel">✕</button>
+    </div>
+    <!-- Moved from the page flow: audience sees charts first, context lives here -->
+    <details class="side-widget" open>
+      <summary>🎨 Visual Key &amp; Benchmarks</summary>
+      <div class="side-widget-body">
+        <div id="legend-panel"></div>
+      </div>
+    </details>
+
+    <details class="side-widget" open>
+      <summary>🧭 Interactive Story Paths</summary>
+      <div class="side-widget-body">
+        <div class="story-tours-grid" id="story-tours-grid" role="group" aria-label="Curated story paths"></div>
+      </div>
+    </details>
+    <details class="side-widget" open>
+      <summary>📊 National Pulse <span class="side-widget-hint" id="kpi-window-label">all years</span></summary>
+      <div class="side-widget-body">
+        <div id="kpi-strip" class="kpi-grid"></div>
+      </div>
+    </details>
+    <div class="insight-tabs" id="insight-tabs" role="tablist" aria-orientation="vertical" aria-label="Insight topics"></div>
+    <div class="insight-content" id="insight-content" role="tabpanel" tabindex="0" aria-live="polite"></div>
+    <div class="insight-foot">Choose a topic — the narrative here updates with every filter change.</div>
+  </aside>
+  </div><!-- /.story-layout -->
+
+  <button type="button" id="insight-fab" class="insight-fab" aria-expanded="false" aria-controls="insight-panel">
+    <span aria-hidden="true">💡</span><span>Insights</span>
+  </button>
+  <div id="insight-backdrop" class="insight-backdrop" hidden></div>
+
+  <!-- ══ FOOTER ══════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-chips">
+      <span class="chip">EPA AirData</span>
+      <span class="chip">U.S. DOT · FHWA</span>
+      <span class="chip">6,700 state-month records</span>
+      <span class="chip">51 states + D.C.</span>
+      <span class="chip">2015–2025</span>
+      <span class="chip">Retrieved 2026</span>
+    </div>
+    <p class="footer-note">Reporting gaps (&lt;2.5%) flagged, not imputed · Emission Efficiency Index = PM2.5 per 1,000 vehicles — a proxy separating fleet cleanliness from traffic volume.</p>
+  </footer>
+</div><!-- /.page-wrap -->
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
