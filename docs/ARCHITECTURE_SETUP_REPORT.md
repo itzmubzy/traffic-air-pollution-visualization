@@ -1,13 +1,13 @@
 # D3 Architecture Setup Report
 
 ## 1. Existing Project Structure
-The project previously contained the dataset, the analysis python script, its output JSON, and the initial dataset readiness report. There was no existing web architecture, so a minimal, lightweight Vanilla JS + D3.js structure was introduced.
+The project previously contained the dataset, the analysis Python script, and the initial dataset readiness report. A lightweight Vanilla JS + D3.js structure was introduced and expanded into the current static interactive story.
 
 ## 2. Architecture Created
 A modular, framework-free architecture was established, using native ES modules to keep components decoupled:
 - `index.html`: Main entry point loading D3 via CDN.
-- `css/style.css`: Minimal styles for the debugging UI.
-- `js/main.js`: Bootstraps the application and links the data loader to the state.
+- `css/style.css`: Complete responsive styling for the story and charts.
+- `js/main.js`: Bootstraps the application, controls, and chart registry.
 - `js/data.js`: Centralized data loader and parser.
 - `js/state.js`: Centralized state management with a lightweight publish/subscribe pattern.
 - `js/utils.js`: Data transformation and aggregation utilities.
@@ -18,8 +18,8 @@ Implemented in `js/data.js`. It fetches `traffic_air_pollution_cleaned_features.
 ## 4. Shared State
 Implemented in `js/state.js`. A single `state` object controls the dashboard state, defaulting to:
 - Empty `selectedStates` (implies all states/no filter).
-- Date range (`startDate`, `endDate`) dynamically determined based on the dataset's extent upon loading.
-- `selectedMetric` defaulting to `efficiency`.
+- Date range (`startDate`, `endDate`) controlled by the year slider or timeline brush.
+- `selectedMetric` defaulting to `pm25`.
 - Support for hover states (`hoveredState`, `hoveredDatum`).
 
 ## 5. Update/Event System
@@ -38,19 +38,14 @@ Implemented in `js/state.js`. An exported `metrics` dictionary defines metadata 
 Map clicks, dropdowns, or interactions can simply call `toggleStateSelection(stateName)` or `setState({ startDate, endDate })`. These centralized actions instantly notify all subscriber visualizations (like Scatterplot, Heatmap, or Line Chart) without tight coupling. Hover behavior uses `hoveredState` which is transient and easily cleared via `setState({ hoveredState: null })`.
 
 ## 9. Validation Results
-- The framework successfully initializes and creates a minimal debug UI.
+- The static runtime successfully initializes the map, timeline, scatterplot, heatmap, small multiples, legend, KPI strip, and insights panel.
 - The CSV dataset loads without modification (6,700 rows).
 - State and date range defaults are correctly parsed and populated on boot.
 - The pub/sub system correctly pushes updates to the minimal UI.
 
 ## 10. Files Created/Modified
-- [NEW] `index.html`
-- [NEW] `css/style.css`
-- [NEW] `js/main.js`
-- [NEW] `js/data.js`
-- [NEW] `js/state.js`
-- [NEW] `js/utils.js`
-- [UNTOUCHED] `traffic_air_pollution_cleaned_features.csv`
+- `index.html`, `css/style.css`, and `js/*.js` comprise the runtime.
+- `traffic_air_pollution_cleaned_features.csv` remains untouched analytical input.
 
 ## 11. Next Step
-The foundational architecture works flawlessly. The original CSV dataset remains untouched. The next step is to implement the **Brush Timeline Visualization**, as this will establish the global time-filtering mechanism that other charts will rely on.
+The project is ready for static deployment. Future changes should preserve the shared state contract and rerun the browser and dataset checks described in `DEPLOYMENT.md`.

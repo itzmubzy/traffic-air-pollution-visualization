@@ -119,7 +119,7 @@ The missing records mean that we do not have perfect State × Month completeness
 | 2. Time-Series Line Chart | Date, Metric | Yes | `Date`, Metric cols | No | D3 line charts will need to handle gaps (missing months). |
 | 3. Scatter Plot | 2 Metrics (x, y) | Yes | `Avg_Daily_Traffic`, `Avg_PM2_5` | No | |
 | 4. Heatmap | State, Month/Year, Metric | Yes | `State_Name`, `Date`, Metric cols | No | Matrix format is easily derived client-side via `d3.group`. |
-| 5. 2x2 Quadrant | 2 Metrics, Categorical | Yes | Metrics, `State_Name` | Yes (Aggregate to Year) | Best shown as average per year to avoid clutter. |
+| 5. Median crosshair in scatter | 2 Metrics | Yes | Metrics, `State_Name` | No | The former standalone quadrant module is retained but not mounted. |
 | 6. Small Multiples | Date, Metric, State | Yes | `Date`, `State_Name`, Metric cols | No | |
 | 7. Bubble Map | State, 2 Metrics (Size/Color) | Yes | `State_Name`, `State_Code`, Metrics | Yes (Aggregate to Year) | Same geographic requirement as choropleth. |
 | 8. Brush + Zoom Timeline | Date, Metric | Yes | `Date`, Metric cols | Yes (Aggregate to Nation) | Needs a national roll-up to show overall trends on the brush. |
@@ -150,6 +150,11 @@ The dataset **fully supports** a shared-state architecture. Because every row ma
 ## 20. Final Recommendations
 - Ensure the D3 code handles `null` values gracefully on line charts since some State-Month combinations are missing.
 - Use `State_Code` to join to standard TopoJSON for the U.S. maps to avoid string matching issues.
+
+The current map uses the names supplied by the external U.S. TopoJSON and has a
+graceful fallback if that optional network asset cannot be fetched. Outlier
+counts in the generated analysis are single boolean counts: 165 PM2.5 flags
+(2.46%) and 132 traffic flags (1.97%).
 
 ## NEXT STEP
 The next step is to design the architectural skeleton (HTML/CSS layout) and setup the shared state and data-loading layer in JavaScript before implementing any individual visual component. Do not alter the source dataset.

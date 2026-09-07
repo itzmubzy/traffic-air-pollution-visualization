@@ -1321,3 +1321,91 @@ text { font-family: var(--font-sans); }
 
 /* Scatter median labels */
 .median-label { opacity: 0.85; }
+
+/* ════════ Intro: problem → objective → question → exploration ════════ */
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 18px 0 8px;
+  text-align: left;
+}
+.intro-card {
+  padding: 18px 20px;
+}
+.intro-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7ec8ff;
+  margin-bottom: 10px;
+}
+.intro-card p {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-muted, #94a3b8);
+}
+.intro-card p:last-child { margin-bottom: 0; }
+.intro-card p b { color: #e2e8f0; }
+
+.objective-list, .explore-steps {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-muted, #94a3b8);
+}
+.objective-list b, .explore-steps b { color: #cbd5e1; }
+
+.rq-main {
+  font-size: 1.02rem !important;
+  font-weight: 600;
+  color: #e2e8f0 !important;
+  line-height: 1.55 !important;
+}
+.rq-secondary {
+  font-size: 0.8rem !important;
+  border-top: 1px solid rgba(148,163,184,0.15);
+  padding-top: 10px;
+  margin-top: 10px !important;
+}
+
+/* Data caption under the controls */
+.data-caption {
+  max-width: 1100px;
+  margin: 10px auto 0;
+  padding: 0 18px;
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+  text-align: center;
+}
+.data-caption b { color: #cbd5e1; }
+
+/* Narrative transition leads */
+.section-lead {
+  max-width: 860px;
+  margin: -6px 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-muted, #94a3b8);
+}
+.section-lead b { color: #cbd5e1; }
+
+/* Can / can't conclude callout */
+.can-can {
+  margin-top: 18px;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: var(--text-muted, #94a3b8);
+}
+.can-can .can { border-left: 3px solid #34d399; padding-left: 14px; }
+.can-can .cant { border-left: 3px solid #f0854a; padding-left: 14px; }
+.can-can b { color: #e2e8f0; }
+.can-can a { color: #7ec8ff; }

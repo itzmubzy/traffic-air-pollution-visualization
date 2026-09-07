@@ -29,15 +29,44 @@
     <div class="hero-kicker">Interactive Data Story · United States · Jan 2015 — Dec 2025</div>
     <h1>Traffic &amp; Air Pollution: <span class="grad-text">What a Decade of Data Shows</span></h1>
     <p class="hero-sub">
-      A decade of monthly data — <b>50 states + Washington, D.C.</b> · 132 months ·
-      <b>6,700 state-month records</b>. Traffic counts from U.S. DOT FHWA joined with air-quality
-      readings from EPA AirData.
+      Air pollution is one of the biggest environmental health risks — and traffic is the first thing
+      people blame. But the data tells a more interesting story: <b>the busiest states are not
+      automatically the most polluted.</b> This project explores why, using a decade of official
+      U.S. data.
     </p>
     <div class="hero-tagline">Traffic doesn't tell the whole pollution story.</div>
     <div class="hero-byline">K M Mubin · ID 24-57300-2 · Data Visualization [A]</div>
-    <div class="rq-card glass">
-      <div class="rq-label">The question we explore</div>
-      <p>Do states with cleaner-running vehicle fleets tend to have cleaner air — and how much does <b>traffic volume alone</b> explain?</p>
+
+    <!-- ── INTRO: Problem → Objective → Question → What you'll explore ── -->
+    <div class="intro-grid">
+      <div class="intro-card glass">
+        <div class="intro-label">🎯 Project objective</div>
+        <p>Analyze <b>10 years</b> of monthly U.S. traffic and air-quality data (EPA + U.S. DOT) to:</p>
+        <ul class="objective-list">
+          <li>see <b>where</b> traffic and pollution overlap</li>
+          <li>find <b>when</b> pollution peaks</li>
+          <li>measure <b>how strongly</b> traffic and pollution move together</li>
+          <li>explore <b>why</b> some high-traffic states look relatively clean</li>
+        </ul>
+      </div>
+
+      <div class="intro-card glass">
+        <div class="intro-label">❓ Main research question</div>
+        <p class="rq-main">How closely are traffic volume and air pollution related — and why do some high-traffic states have relatively cleaner air?</p>
+        <p class="rq-secondary">One possible explanation is that vehicles run cleaner in some states — but note: this dataset measures <b>traffic counts and pollution readings</b>, not vehicles or engines themselves. All findings are associative, not causal.</p>
+      </div>
+
+      <div class="intro-card glass">
+        <div class="intro-label">🗺️ What you're about to explore</div>
+        <p>The story unfolds in five short chapters — each chart answers one question:</p>
+        <ol class="explore-steps">
+          <li><b>Where</b> is pollution happening?</li>
+          <li><b>When</b> does it get worse?</li>
+          <li><b>Does traffic</b> explain it?</li>
+          <li><b>What patterns</b> stand out?</li>
+          <li><b>What can — and can't —</b> we conclude?</li>
+        </ol>
+      </div>
     </div>
   </header>
 
@@ -79,6 +108,8 @@
     </div>
   </section>
 
+  <div class="data-caption">📦 The data: monthly averages for <b>50 states + Washington, D.C.</b> · Jan 2015 – Dec 2025 · 6,700 records · U.S. DOT FHWA traffic counts joined with EPA AirData monitoring.</div>
+
   <div id="filter-bar" class="filter-bar">
     <span class="filter-pill"><span class="pill-key">Loading</span><span class="pill-val">—</span></span>
   </div>
@@ -89,6 +120,7 @@
   <main class="story-main">
   <section class="story-section" id="section-where">
     <div class="section-label">01 · Where is it happening?</div>
+    <p class="section-lead">First, the big picture: pollution isn't spread evenly across the country. The map shows which states carry the highest average levels.</p>
     <div class="panel glass">
       <div class="panel-head">
         <div>
@@ -104,6 +136,7 @@
   <!-- ══ 02 · WHEN ═══════════════════════════════════════════ -->
   <section class="story-section" id="section-when">
     <div class="section-label">02 · When does it get worse?</div>
+    <p class="section-lead">Next, time. If traffic alone drove pollution, we'd expect the busiest times to be worst — instead, the strongest rhythm is <b>seasonal</b>.</p>
     <div class="panel glass">
       <div class="panel-head">
         <div>
@@ -119,6 +152,7 @@
   <!-- ══ 03 · DOES TRAFFIC EXPLAIN POLLUTION? ════════════════ -->
   <section class="story-section" id="section-relationships">
     <div class="section-label">03 · Does traffic explain pollution?</div>
+    <p class="section-lead">Now the core test. If traffic volume explained pollution, every state would sit close to the trend line. Watch how many don't — that gap is where the real story lives.</p>
     <div class="panel glass">
       <div class="panel-head">
         <div>
@@ -133,6 +167,7 @@
   <!-- ══ 04 · WHAT DID WE LEARN? ═════════════════════════════ -->
   <section class="story-section" id="section-findings">
     <div class="section-label">04 · What did we learn?</div>
+    <p class="section-lead">Putting the whole decade together, four patterns stand out. Click any card to jump straight to its evidence.</p>
     <div class="finding-grid">
       <div class="finding-card glass">
         <div class="finding-icon" aria-hidden="true">🚗</div>
@@ -159,11 +194,17 @@
         <button class="btn-finding" data-preset-btn="hotspots-double-burden" type="button">See the evidence →</button>
       </div>
     </div>
+
+    <div class="can-can glass">
+      <div class="can"><b>✅ What we can say:</b> traffic levels and pollution levels are statistically associated; pollution peaks in winter; several high-traffic states stay comparatively clean.</div>
+      <div class="cant"><b>🚫 What we can't say:</b> that traffic <i>causes</i> pollution, or that any policy <i>caused</i> improvement — this dataset measures traffic counts and pollution readings, not vehicles, engines, or policies. Details in <a href="#section-advanced">Methodology</a>.</div>
+    </div>
   </section>
 
   <!-- ══ 05 · ADVANCED EXPLORATION ═══════════════════════════ -->
   <section class="story-section advanced-section" id="section-advanced">
     <div class="section-label">05 · Advanced Exploration <span class="adv-note">— deeper tools for curious readers</span></div>
+    <p class="section-lead">Everything here digs into the <b>same data at a finer grain</b>, behind the findings above. Useful questions to bring with you: which months drive each state's average, and do busy states stay clean <i>because of</i> their traffic levels or <i>in spite of them</i>? Remember: this data counts vehicles and measures pollution — it doesn't measure the vehicles themselves.</p>
 
     <details class="adv-block glass" open>
       <summary>🎛️ Compare specific states</summary>

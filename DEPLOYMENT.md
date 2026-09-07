@@ -44,14 +44,15 @@ python -m http.server 8080
 # then open http://localhost:8080
 ```
 
-Verify: the map, timeline, scatter, quadrant, heatmap, and small multiples all
-render; filters (year slider, metric, state) update every chart; no errors in
-the browser console.
+Verify: the map, timeline, scatter, heatmap, and small multiples all render;
+filters (year slider, metric, state) update every chart; no errors appear in the
+browser console. The legacy `js/quadrant.js` file is retained for reference but
+is not part of the runtime entry point.
 
 ## Deployment
 
-1. Upload the project root **as-is** (excluding dev-only items already covered
-   by `.gitignore`): `index.html`, `css/`, `js/`, and the CSV.
+1. Upload only the runtime files: `index.html`, `css/`, `js/`, and the CSV.
+   Exclude `.git/`, `.kilo/`, `.vscode/`, `analyze.py`, and `docs/`.
 2. Enable **gzip/brotli compression** for `.csv`, `.js`, `.css`, `.html` —
    the 1.7 MB CSV compresses to roughly ~500 KB, which is the single biggest
    performance win.
@@ -80,7 +81,7 @@ git push -u origin main
 - [x] Referrer-Policy set
 - [x] Debug `console.log` removed; only error logging remains
 - [ ] Host-level headers (`X-Content-Type-Options`, `X-Frame-Options`, HSTS) — configure on your hosting platform
-- [x] Production build tested locally over HTTP
+- [x] Static runtime tested locally over HTTP
 
 ## Post-Deployment
 

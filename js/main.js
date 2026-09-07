@@ -253,7 +253,13 @@ async function init() {
     // ── Create components ───────────────────────────────────
     createLegend('#legend-panel');
     createKPIs('#kpi-strip');
-    createMap('#map-wrapper');
+    createMap('#map-wrapper').catch(err => {
+      console.error('Map init error:', err);
+      const mapHost = document.getElementById('map-wrapper');
+      if (mapHost) {
+        mapHost.innerHTML = '<div class="hm-empty" role="alert">The map is temporarily unavailable. The other charts remain usable.</div>';
+      }
+    });
     createScatterplot('#scatter-wrapper');
     createHeatmap('#heatmap-wrapper');
     createTimeline('#area-chart-container');

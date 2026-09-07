@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import json
 import os
 
@@ -107,8 +106,8 @@ stats["outliers"] = {}
 for c in outlier_flags:
     if c in df.columns:
         stats["outliers"][c] = {
-            "count": int((df[c] == True).sum() + (df[c] == 1).sum()),
-            "pct": round(((df[c] == True).sum() + (df[c] == 1).sum()) / len(df) * 100, 2)
+            "count": int(df[c].eq(True).sum()),
+            "pct": round(df[c].eq(True).sum() / len(df) * 100, 2)
         }
 
 with open("stats.json", "w") as f:

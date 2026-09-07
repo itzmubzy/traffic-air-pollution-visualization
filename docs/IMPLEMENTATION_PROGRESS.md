@@ -5,8 +5,8 @@
 - Inter + JetBrains Mono typography via Google Fonts.
 - Year slider: dataset-derived min/max, keyboard accessible, connected to `setYear()` → shared state.
 - "All Years" reset button with active/inactive visual state.
-- Temporal area chart rebuilt using D3 step-after area pattern (zoom + brush).
-- Zoom: visual inspection only — does NOT change shared date filter.
+- Temporal area chart rebuilt using D3 step-after area pattern with a brush.
+- Zoom is not enabled; the year slider and brush provide time navigation.
 - Brush: sets `startDate`/`endDate` in shared state → all visualizations react.
 - Heatmap + area chart placed side-by-side in `temporal-grid` (stacks on mobile).
 - Project information placeholder section added (ready for real content).
@@ -15,9 +15,9 @@
 
 ## Completed
 - Phase 1: Existing architecture + Interactive Timeline (Brush + Zoom + Tooltip)
-- Phase 2 & 4 & 8: U.S. Geographic Map (Combined Choropleth & Bubble Map with mode toggle)
+- Phase 2 & 4 & 8: U.S. Geographic Map (choropleth)
 - Phase 5: Scatterplot (Traffic vs Selected Metric, with state selection and date filtering)
-- Phase 6: Quadrant (PM2.5 vs Selected Metric, with quadrant coloring)
+- Phase 6: Median crosshair integrated into the scatterplot; the former standalone quadrant view is not mounted
 - Phase 7: Heatmap (State vs Date, with state selection and date filtering)
 - Phase 9: Small Multiples (Trend comparison for selected states)
 - Phase 10: Voronoi/dense-point interaction (Skipped as per request)
