@@ -4,12 +4,9 @@ import { state, metrics, setState, toggleStateSelection } from './state.js';
 let root;
 
 const CARDS = [
-  { id: 'kpi-pm25', key: 'pm25', label: 'PM2.5', unit: 'µg/m³', tip: 'Fine particulate matter. Click to set active metric.' },
-  { id: 'kpi-aqi', key: 'aqi', label: 'Air Quality Index', unit: '', tip: 'EPA Air Quality Index. Click to set active metric.' },
-  { id: 'kpi-traffic', key: 'traffic', label: 'Traffic Volume', unit: 'veh/day', tip: 'Daily traffic volume. Click to set active metric.' },
-  { id: 'kpi-eff', key: 'efficiency', label: 'Emission Efficiency', unit: 'µg/m³ / 1k veh', tip: 'PM2.5 per 1,000 vehicles. Lower = cleaner fleet. Click to set active metric.' },
-  { id: 'kpi-clean', key: 'clean', label: 'Cleanest State', unit: 'by PM2.5', tip: 'State with lowest PM2.5 in current window. Click to isolate state.' },
-  { id: 'kpi-hot', key: 'hot', label: 'Highest PM2.5', unit: '', tip: 'State with highest PM2.5 in current window. Click to isolate state.' }
+  { id: 'kpi-pm25', key: 'pm25', label: 'PM2.5 — national average', unit: 'µg/m³', tip: 'Fine particulate matter, averaged across all states. Click to make it the active metric.' },
+  { id: 'kpi-clean', key: 'clean', label: 'Cleanest state', unit: 'by PM2.5', tip: 'State with lowest PM2.5 in the current window. Click to trace it everywhere.' },
+  { id: 'kpi-hot', key: 'hot', label: 'Most polluted state', unit: 'by PM2.5', tip: 'State with highest PM2.5 in the current window. Click to trace it everywhere.' }
 ];
 
 const seriesCache = {};
@@ -25,7 +22,7 @@ export function createKPIs(sel) {
     </div>`).join(''));
 
   // Wire interactive clicks on KPI cards
-  [['kpi-pm25', 'pm25'], ['kpi-aqi', 'aqi'], ['kpi-traffic', 'traffic'], ['kpi-eff', 'efficiency']].forEach(([id, key]) => {
+  [['kpi-pm25', 'pm25']].forEach(([id, key]) => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('click', () => setState({ selectedMetric: key }));
@@ -59,30 +56,17 @@ export function updateKPIs(s) {
     : () => true;
 
   const win = s.data.filter(d => inWindow(d) && inStates(d));
-  const base = s.data.filter(inStates); // same states, full period
 
-  // ── Four metric cards: value + delta vs full-period baseline + sparkline ──
-  [['kpi-pm25', 'pm25'], ['kpi-aqi', 'aqi'], ['kpi-traffic', 'traffic'], ['kpi-eff', 'efficiency']]
-    .forEach(([id, key]) => {
-      const m = metrics[key];
-      const meanW = d3.mean(win, d => d[m.field]);
-      const meanB = d3.mean(base, d => d[m.field]);
-      const el = root.select('#' + id);
-      el.select('.kpi-value').classed('kpi-state-name', false);
-      _countUp(el.select('.kpi-value'), meanW, m.fmt);
-
-      const deltaEl = el.select('.kpi-delta');
-      if (meanW != null && meanB) {
-        const pct = (meanW / meanB - 1) * 100;
-        const good = m.goodDirection === 'down' ? pct < 0 : null; // all four: lower is better or neutral
-        deltaEl
-          .attr('class', 'kpi-delta ' + (good == null ? 'neutral' : good ? 'good' : 'bad'))
-          .text(`${pct >= 0 ? '+' : ''}${pct.toFixed(1)}% vs full-period avg`);
-      } else {
-        deltaEl.attr('class', 'kpi-delta neutral').text('baseline');
-      }
-      _spark(el.select('.kpi-spark'), key, m);
-    });
+  // ── National average card: value + sparkline (no % deltas) ──
+  {
+    const m = metrics['pm25'];
+    const meanW = d3.mean(win, d => d[m.field]);
+    const el = root.select('#kpi-pm25');
+    el.select('.kpi-value').classed('kpi-state-name', false);
+    _countUp(el.select('.kpi-value'), meanW, m.fmt);
+    el.select('.kpi-delta').attr('class', 'kpi-delta neutral').text(m.unit ? m.unit : '');
+    _spark(el.select('.kpi-spark'), 'pm25', m);
+  }
 
   // ── Cleanest / hottest state cards (within window, ≥6 months of data) ──
   const byState = d3.rollup(

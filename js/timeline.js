@@ -141,15 +141,7 @@ export function createTimeline(containerId) {
       tooltip.style('opacity', 0);
     });
 
-  // ── Zoom (visual inspection, does NOT filter shared state) ─
-  const zoom = d3.zoom()
-    .scaleExtent([1, 32])
-    .extent([[marginLeft, 0], [width - marginRight, height]])
-    .translateExtent([[marginLeft, -Infinity], [width - marginRight, Infinity]])
-    .filter(e => e.type === 'wheel')
-    .on('zoom', zoomed);
-
-  svg.call(zoom);
+  // Zoom removed for simplicity — the year slider + brush cover time navigation.
 
   // Initial data render
   _refreshData();
@@ -280,33 +272,6 @@ function brushed(event) {
   }
 }
 
-// ── Zoom handler: rescales view ONLY, no state change ────────
-function zoomed(event) {
-  currentTransform = event.transform;
-  const xz = currentTransform.rescaleX(x);
-  const metric = metrics[state.selectedMetric];
-  const areaGen = (data, xScale) => d3.area()
-    .defined(d => d[metric.field] != null && !isNaN(d[metric.field]))
-    .curve(d3.curveStepAfter)
-    .x(d => xScale(d.Date))
-    .y0(y(0))
-    .y1(d => y(d[metric.field]))
-    (data);
-  const lineGen = (data, xScale) => d3.line()
-    .defined(d => d[metric.field] != null && !isNaN(d[metric.field]))
-    .curve(d3.curveStepAfter)
-    .x(d => xScale(d.Date))
-    .y(d => y(d[metric.field]))
-    (data);
-
-  gx.call(d3.axisBottom(xz).ticks(width / 80).tickSizeOuter(0))
-    .call(g => g.selectAll('.tick text').attr('fill', 'var(--text-muted)').attr('font-size', '11px'));
-  areaPath.attr('d', areaGen(nationalData, xz));
-  linePath.attr('d', lineGen(nationalData, xz));
-  _drawBands(xz);
-  _drawExtremes(metric, xz);
-}
-
 // ── Winter shading bands (Dec–Feb) ───────────────────────────
 function _drawBands(xz) {
   if (!nationalData.length) return;
@@ -392,8 +357,15 @@ function _callouts(metric) {
     </div>
     <div class="callout-chip">
       <div class="callout-head"><span class="callout-pin">🖱️</span>Drive the story with time</div>
-      <div class="callout-meaning"><b>How to use:</b> brush any span to filter every chart on this page · scroll to zoom · the year slider snaps to whole years.</div>
+      <div class="callout-meaning"><b>How to use:</b> drag across any span to focus every chart on that period · the ▶ button animates through the years · "All Years" resets.</div>
     </div>`;
+
+    // In-page takeaway under the timeline
+    const tk = document.getElementById('timeline-takeaway');
+    if (tk) {
+      const isWinterPeak = peak.Date.getMonth() === 11 || peak.Date.getMonth() === 0 || peak.Date.getMonth() === 1;
+      tk.innerHTML = `<b>What this means:</b> the national peak lands in <b>${d3.timeFormat('%B %Y')(peak.Date)}</b>${isWinterPeak ? ' — a winter month, when cold air tends to trap pollution near the ground' : ''}, and the pattern repeats across the decade.`;
+    }
   }
   setInsight('timeline', html);
 }

@@ -55,23 +55,34 @@ export function updateSmallMultiples(s) {
   const metric = metrics[s.selectedMetric];
   const primaryField = metric.field;
 
-  // Render ALL states — selection highlights/dims cards, nothing is removed
-  const displayStates = Array.from(new Set(s.data.map(d => d.State_Name))).sort();
+  // Render selected states when the user picks some; otherwise show a small
+  // default set (top 6 by current metric) instead of all 51 states.
   const isDefaultView = !s.selectedStates.length;
+  const inWindow = d =>
+    (!s.startDate || d.Date >= s.startDate) && (!s.endDate || d.Date <= s.endDate);
+  let displayStates;
+  if (isDefaultView) {
+    const stateMeans = d3.rollup(s.data.filter(inWindow), v => d3.mean(v, d => d[metric.field]), d => d.State_Name);
+    displayStates = Array.from(stateMeans, ([name, val]) => ({ name, val }))
+      .filter(d => d.val != null && !isNaN(d.val))
+      .sort((a, b) => b.val - a.val)
+      .slice(0, 6)
+      .map(d => d.name);
+  } else {
+    displayStates = s.selectedStates.slice().sort();
+  }
 
   // Header count + hint text
   wrapper.select('.sm-header-left').html(`
-    <div class="sm-count">All <b>${displayStates.length}</b> states</div>
+    <div class="sm-count">${isDefaultView ? 'Top' : 'Comparing'} <b>${displayStates.length}</b> state${displayStates.length === 1 ? '' : 's'}</div>
     <div class="sm-hint">${isDefaultView
-      ? 'Click any state (map, heatmap row, or a card) to build your comparison'
-      : 'Hover to compare · Click to select · Two metrics per panel'}</div>
+      ? 'Highest states for the current metric · click any state (map, chart, or card) to build your own comparison'
+      : 'Hover to compare · Click to add or remove · Two metrics per panel'}</div>
   `);
   wrapper.select('.lg-primary').text(metric.label);
 
   // Per-state rows (respect the global time window)
   cardData = new Map();
-  const inWindow = d =>
-    (!s.startDate || d.Date >= s.startDate) && (!s.endDate || d.Date <= s.endDate);
 
   for (const name of displayStates) {
     const rows = s.data

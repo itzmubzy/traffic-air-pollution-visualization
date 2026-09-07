@@ -6,7 +6,7 @@ import { setInsight } from './insights.js';
 const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 const W = 420, H = 320;
 
-let svg, x, y, xAxis, yAxis, tooltip, gAnno, gTrend;
+let svg, x, y, xAxis, yAxis, tooltip, gAnno, gTrend, gMedian;
 
 export function createScatterplot(containerId) {
     const container = d3.select(containerId);
@@ -22,6 +22,20 @@ export function createScatterplot(containerId) {
 
     // Trendline group behind points
     gTrend = svg.append('g').attr('class', 'scatter-trend');
+
+    // Median crosshair (absorbed from the old quadrant chart):
+    // shows how each state compares to the "middle state"
+    gMedian = svg.append('g').attr('class', 'scatter-median');
+    gMedian.append('line').attr('class', 'median-x')
+      .attr('stroke', 'rgba(148,163,184,0.4)').attr('stroke-dasharray', '3,3');
+    gMedian.append('line').attr('class', 'median-y')
+      .attr('stroke', 'rgba(148,163,184,0.4)').attr('stroke-dasharray', '3,3');
+    gMedian.append('text').attr('class', 'median-label med-tl')
+      .attr('font-size', '10px').attr('fill', 'var(--text-muted)')
+      .attr('text-anchor', 'start').text('↖ quieter & lower');
+    gMedian.append('text').attr('class', 'median-label med-tr')
+      .attr('font-size', '10px').attr('fill', 'var(--text-muted)')
+      .attr('text-anchor', 'end').text('busier & higher ↗');
 
     xAxis = svg.append('g').attr('transform', `translate(0,${H})`);
     yAxis = svg.append('g');
@@ -110,6 +124,16 @@ export function updateScatterplot(currentState) {
 
     // Linear regression trendline (OLS)
     _drawTrendline(data);
+
+    // Median crosshair — "compared to the middle state" (absorbed quadrant view)
+    const xMed = d3.median(data, d => d.traffic);
+    const yMed = d3.median(data, d => d.metric);
+    gMedian.select('.median-x')
+      .attr('x1', x(xMed)).attr('x2', x(xMed)).attr('y1', 0).attr('y2', H);
+    gMedian.select('.median-y')
+      .attr('x1', 0).attr('x2', W).attr('y1', y(yMed)).attr('y2', y(yMed));
+    gMedian.select('.med-tl').attr('x', 6).attr('y', 12);
+    gMedian.select('.med-tr').attr('x', W - 6).attr('y', 12);
 
     const isSelected = name => currentState.selectedStates.includes(name);
     const hasSelection = currentState.selectedStates.length > 0;
@@ -278,6 +302,14 @@ function _callouts(data, s) {
             <div class="callout-head"><span class="callout-pin">🚗</span>${topT.stateName} tops traffic at ${d3.format(',.0f')(topT.traffic)} veh/day</div>
             <div class="callout-meaning">${topMeaning}</div>
         </div>`;
+
+        // In-page takeaway under the scatter plot
+        const tk = document.getElementById('scatter-takeaway');
+        if (tk) {
+            const u = metric.unit ? ` ${metric.unit}` : '';
+            const f = d3.format(metric.fmt);
+            tk.innerHTML = `<b>What this means:</b> traffic and ${metric.short} move together only ${absR < 0.25 ? 'weakly' : absR < 0.55 ? 'moderately' : 'strongly'} here — ${topT.stateName} carries the heaviest traffic yet ${rankOfTop <= midRank ? `still ranks #${rankOfTop} of ${n} on ${metric.short} (${f(topT.metric)}${u})` : `ranks #${rankOfTop} of ${n} on ${metric.short} (${f(topT.metric)}${u}) — busy roads don't have to mean dirtier air`}. Association, not proof of cause.`;
+        }
     }
     setInsight('scatter', html);
 }

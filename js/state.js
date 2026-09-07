@@ -19,14 +19,9 @@ export const metrics = {
     about: "Composite air-quality index reported by EPA monitors."
   },
   efficiency: {
-    field: "Emission_Efficiency_Index", label: "Emission Efficiency Index", short: "emission efficiency",
+    field: "Emission_Efficiency_Index", label: "Pollution relative to traffic", short: "pollution relative to traffic",
     unit: "µg/m³ per 1,000 veh", fmt: ".2f", palette: "pollution", goodDirection: "down",
-    about: "PM2.5 emitted per 1,000 vehicles — lower means a cleaner-running fleet."
-  },
-  trafficPer1000: {
-    field: "Traffic_per_1000", label: "Traffic per 1,000", short: "traffic intensity",
-    unit: "k·veh/day", fmt: ".1f", palette: "traffic", goodDirection: null,
-    about: "Traffic volume rescaled per 1,000 vehicles for comparability."
+    about: "PM2.5 divided by traffic volume — a descriptive proxy, not a direct measure of fleet cleanliness."
   }
 };
 
@@ -39,8 +34,8 @@ export const STORY_PRESETS = [
     metric: "efficiency",
     states: ["Washington", "Oregon", "Vermont", "New Hampshire"],
     year: "All",
-    insightTab: "quadrant",
-    storySummary: "These states demonstrate that strict vehicle maintenance and renewable power decouple traffic from particulate pollution."
+    insightTab: "scatter",
+    storySummary: "These states tend to combine heavy traffic with comparatively low pollution per vehicle — consistent with cleaner-running fleets and cleaner energy, though other factors also play a role."
   },
   {
     id: "winter-inversions",
@@ -51,7 +46,7 @@ export const STORY_PRESETS = [
     states: ["Utah", "Idaho", "Nevada", "Montana"],
     year: "All",
     insightTab: "seasons",
-    storySummary: "Winter cold-air inversions trap vehicle tailpipe exhaust near the ground, producing extreme seasonal PM2.5 spikes."
+    storySummary: "Winter cold-air inversions tend to trap vehicle tailpipe exhaust near the ground, producing extreme seasonal PM2.5 spikes."
   },
   {
     id: "traffic-giants",
@@ -62,7 +57,7 @@ export const STORY_PRESETS = [
     states: ["California", "Texas", "Florida", "New York"],
     year: "All",
     insightTab: "scatter",
-    storySummary: "Comparing the largest mega-states: California has massive traffic yet manages lower emissions per vehicle than less regulated corridors."
+    storySummary: "Comparing the largest mega-states: California carries massive traffic yet tends to show lower pollution per vehicle than less regulated corridors — traffic alone doesn't determine air quality."
   },
   {
     id: "hotspots-double-burden",
@@ -73,7 +68,7 @@ export const STORY_PRESETS = [
     states: ["California", "Indiana", "Illinois", "Ohio", "Pennsylvania"],
     year: "All",
     insightTab: "map",
-    storySummary: "Industrial and freight corridors suffer compounding burdens from heavy interstate diesel freight and local commuter traffic."
+    storySummary: "Industrial and freight corridors tend to face compounding burdens from heavy interstate freight and local commuter traffic."
   }
 ];
 
@@ -83,7 +78,7 @@ export const state = {
   startDate: null,          // Date object or null
   endDate: null,            // Date object or null
   selectedYear: "All",      // "All" or a number
-  selectedMetric: "efficiency", // Key from metrics
+  selectedMetric: "pm25", // Key from metrics
   hoveredState: null,
   hoveredDatum: null,
   isPlaying: false,

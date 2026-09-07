@@ -1,19 +1,18 @@
 // map.js — Macro view "Where": choropleth + bubble modes,
 // top-state annotation pointer, rich tooltip & callout chips
 import { state, metrics, toggleStateSelection, setHoveredState, subscribeHover } from './state.js';
-import { colorScale, metricStateMax, addGlow, CAT_COLORS } from './colors.js';
+import { colorScale, addGlow, CAT_COLORS } from './colors.js';
 import { stateAbbr, fmtMetric } from './utils.js';
 import { setInsight } from './insights.js';
 
 const width = 975, height = 610;
-let svg, path, tooltip, us, mapMode = 'choropleth';
-let gStates, gMesh, gBubbles, gAnno;
+let svg, path, tooltip, us;
+let gStates, gMesh, gAnno;
 let glowMain, glowSel;
 let firstRender = true;
 
 export async function createMap(containerId) {
   path = d3.geoPath();
-  _modeButtons();
 
   svg = d3.select(containerId).append('svg')
     .attr('viewBox', `0 0 ${width} ${height}`)
@@ -24,7 +23,6 @@ export async function createMap(containerId) {
   glowSel = addGlow(defs, 'map-glow-sel', '#f0854a', 5);
 
   gStates = svg.append('g').attr('class', 'states');
-  gBubbles = svg.append('g').attr('class', 'bubbles');
   gMesh = svg.append('path').attr('class', 'state-borders');
   gAnno = svg.append('g').attr('class', 'map-anno');
 
@@ -33,31 +31,25 @@ export async function createMap(containerId) {
     .style('opacity', 0);
 
   subscribeHover(hoveredName => {
-    if (mapMode === 'choropleth') {
-      gStates.selectAll('path')
-        .attr('stroke', d => {
-          const name = d.properties.name;
-          if (state.selectedStates.includes(name)) return '#f0854a';
-          if (hoveredName === name) return '#fff';
-          return 'none';
-        })
-        .attr('stroke-width', d => {
-          const name = d.properties.name;
-          if (state.selectedStates.includes(name)) return 1.5;
-          if (hoveredName === name) return 1.2;
-          return 0;
-        })
-        .attr('filter', d => {
-          const name = d.properties.name;
-          if (state.selectedStates.includes(name)) return glowSel;
-          if (hoveredName === name) return glowMain;
-          return null;
-        });
-    } else {
-      gBubbles.selectAll('circle')
-        .attr('fill-opacity', d => (hoveredName === d.properties.name || state.selectedStates.includes(d.properties.name)) ? 0.9 : 0.55)
-        .attr('stroke', d => (hoveredName === d.properties.name || state.selectedStates.includes(d.properties.name)) ? '#f0854a' : 'rgba(255,255,255,0.4)');
-    }
+    gStates.selectAll('path')
+      .attr('stroke', d => {
+        const name = d.properties.name;
+        if (state.selectedStates.includes(name)) return '#f0854a';
+        if (hoveredName === name) return '#fff';
+        return 'none';
+      })
+      .attr('stroke-width', d => {
+        const name = d.properties.name;
+        if (state.selectedStates.includes(name)) return 1.5;
+        if (hoveredName === name) return 1.2;
+        return 0;
+      })
+      .attr('filter', d => {
+        const name = d.properties.name;
+        if (state.selectedStates.includes(name)) return glowSel;
+        if (hoveredName === name) return glowMain;
+        return null;
+      });
   });
 
   us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-albers-10m.json');
@@ -70,24 +62,6 @@ export async function createMap(containerId) {
     .attr('d', path);
 
   updateMap(state);
-}
-
-function _modeButtons() {
-  const host = document.getElementById('map-mode');
-  if (!host) return;
-  host.innerHTML = '';
-  [['choropleth', 'Color fill'], ['bubble', 'Bubbles']].forEach(([val, label]) => {
-    const b = document.createElement('button');
-    b.className = 'map-mode-btn' + (val === mapMode ? ' is-active' : '');
-    b.textContent = label;
-    b.addEventListener('click', () => {
-      mapMode = val;
-      host.querySelectorAll('.map-mode-btn').forEach(x => x.classList.remove('is-active'));
-      b.classList.add('is-active');
-      updateMap(state);
-    });
-    host.appendChild(b);
-  });
 }
 
 export function updateMap(s) {
@@ -123,8 +97,7 @@ export function updateMap(s) {
     return r && r.value != null && !isNaN(r.value) ? r.value : null;
   };
 
-  if (mapMode === 'choropleth') {
-    gBubbles.selectAll('*').remove();
+  {
     gStates.selectAll('path')
       .data(features, d => d.properties.name)
       .join('path')
@@ -174,70 +147,6 @@ export function updateMap(s) {
         .attr('opacity', d => opacityOf(d.properties.name));
     }
     gMesh.raise();
-  } else {
-    const maxV = metricStateMax(s.selectedMetric, s.data);
-    const radius = d3.scaleSqrt().domain([0, maxV]).range([0, 42]);
-
-    gStates.selectAll('path')
-      .data(features, d => d.properties.name)
-      .join('path')
-      .attr('d', path)
-      .attr('fill', '#121a2d')
-      .attr('stroke', 'rgba(148,163,184,0.10)')
-      .attr('opacity', d => opacityOf(d.properties.name))
-      .on('click', (event, d) => toggleStateSelection(d.properties.name));
-
-    gMesh.raise();
-    gBubbles.raise();
-
-    gBubbles.selectAll('circle')
-      .data(features, d => d.properties.name)
-      .join('circle')
-      .attr('transform', d => `translate(${path.centroid(d)})`)
-      .attr('fill', d => {
-        const v = valueOf(d.properties.name);
-        return v == null ? CAT_COLORS.noData : scale(v);
-      })
-      .attr('fill-opacity', 0.55)
-      .attr('stroke', d => isSel(d.properties.name) ? '#f0854a' : 'rgba(255,255,255,0.4)')
-      .attr('stroke-width', d => isSel(d.properties.name) ? 1.6 : 0.6)
-      .attr('filter', d => isSel(d.properties.name) ? glowSel : null)
-      .attr('tabindex', 0)
-      .style('pointer-events', 'all')
-      .style('cursor', 'pointer')
-      .on('mouseover', function (event, d) {
-        setHoveredState(d.properties.name);
-        d3.select(this).attr('fill-opacity', 0.85).attr('filter', glowMain);
-        _tip(event, d.properties.name, valueOf(d.properties.name), rankOf, ranked.length, perState, metric);
-      })
-      .on('mouseleave', function (event, d) {
-        setHoveredState(null);
-        const name = d.properties.name;
-        d3.select(this)
-          .attr('fill-opacity', 0.55)
-          .attr('filter', isSel(name) ? glowSel : null)
-          .attr('stroke', isSel(name) ? '#f0854a' : 'rgba(255,255,255,0.4)')
-          .attr('stroke-width', isSel(name) ? 1.6 : 0.6);
-        tooltip.style('opacity', 0);
-      })
-      .on('keydown', (event, d) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          toggleStateSelection(d.properties.name);
-        }
-      })
-      .on('click', (event, d) => toggleStateSelection(d.properties.name))
-      .transition().duration(450)
-      .attr('r', d => {
-        const v = valueOf(d.properties.name);
-        return v == null ? 0 : radius(v);
-      });
-    if (firstRender) {
-      gBubbles.selectAll('circle')
-        .attr('opacity', 0)
-        .transition().duration(700).delay((d, i) => i * 4)
-        .attr('opacity', 1);
-    }
   }
 
   _annotate(ranked, features, metric);
@@ -332,9 +241,15 @@ function _callouts(ranked, metric) {
       <div class="callout-meaning"><b>What this means:</b> the highest ${metric.short} in the current window. Click ${abbr} on the map to trace its trend through every chart.</div>
     </div>
     <div class="callout-chip">
-      <div class="callout-head"><span class="callout-pin">🗺️</span>Burdens cluster — top 5 average <b>&nbsp;${fmtMetric(metric, top5Avg)}</b></div>
-      <div class="callout-meaning"><b>What this means:</b> that's <b>${pct >= 0 ? '+' : ''}${pct.toFixed(0)}%</b> vs the U.S. mean (${fmtMetric(metric, allAvg)}). A few states run consistently hotter — geography and fleet mix matter as much as raw volume.</div>
+      <div class="callout-head"><span class="callout-pin">🗺️</span>Pollution tends to cluster — top 5 average <b>&nbsp;${fmtMetric(metric, top5Avg)}</b></div>
+      <div class="callout-meaning"><b>What this means:</b> that's <b>${pct >= 0 ? '+' : ''}${pct.toFixed(0)}%</b> vs the U.S. mean (${fmtMetric(metric, allAvg)}). A few states run consistently hotter — geography, industry and fleet mix are all likely contributors.</div>
     </div>`;
+
+    // In-page takeaway under the map
+    const tk = document.getElementById('map-takeaway');
+    if (tk) {
+      tk.innerHTML = `<b>What this means:</b> ${top.name} (${abbr}) shows the highest ${metric.short} in the current window — and pollution tends to cluster in a handful of states rather than spread evenly.`;
+    }
   }
   setInsight('map', html);
 }

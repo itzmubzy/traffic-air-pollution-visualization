@@ -6,8 +6,7 @@ import { stateAbbr } from './utils.js';
 const SECTIONS = [
   { id: 'map',      icon: '📍', label: 'Where it concentrates', desc: 'Hotspot states & clusters' },
   { id: 'timeline', icon: '📈', label: 'When it peaks',         desc: 'National trend & extremes' },
-  { id: 'scatter',  icon: '📐', label: 'Traffic ↔ pollution',   desc: 'Correlation & outliers' },
-  { id: 'quadrant', icon: '🧭', label: 'Fleet quadrants',       desc: 'Double burden vs benchmark' },
+  { id: 'scatter',  icon: '📐', label: 'Traffic ↔ pollution',   desc: 'How closely they move together' },
   { id: 'seasons',  icon: '🌡️', label: 'Seasonal rhythm',      desc: 'Hottest & calmest months' },
   { id: 'guide',    icon: '🔬', label: 'How to read',           desc: 'Guide & current selection' }
 ];

@@ -40,7 +40,7 @@ export function updateHeatmap(s) {
   // Selection HIGHLIGHTS rows instead of hiding the rest — every state
   // stays visible so users can keep clicking more rows (multi-select).
   const selected = new Set(s.selectedStates);
-  const TOPN = 14, MAXROWS = 24;
+  const TOPN = 10, MAXROWS = 14;
   const top = states.slice(0, TOPN);
   const pinned = states.filter(d => selected.has(d.name) && !top.includes(d));
   states = top.concat(pinned).sort((a, b) => b.val - a.val).slice(0, MAXROWS);

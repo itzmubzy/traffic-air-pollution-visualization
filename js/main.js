@@ -4,7 +4,6 @@ import { state, setState, subscribe, setYear, metrics, STORY_PRESETS, applyStory
 import { initInsights, setInsightError, activateTab } from './insights.js';
 import { createTimeline, updateTimeline } from './timeline.js';
 import { createScatterplot, updateScatterplot } from './scatter.js';
-import { createQuadrant, updateQuadrant } from './quadrant.js';
 import { createHeatmap, updateHeatmap } from './heatmap.js';
 import { createMap, updateMap } from './map.js';
 import { createSmallMultiples, updateSmallMultiples } from './smallMultiples.js';
@@ -96,7 +95,7 @@ function updateFilterBar(s) {
   }
 
   // Sync active KPI card highlight with selected metric
-  const metricToCardId = { pm25: 'kpi-pm25', aqi: 'kpi-aqi', traffic: 'kpi-traffic', efficiency: 'kpi-eff' };
+  const metricToCardId = { pm25: 'kpi-pm25' };
   document.querySelectorAll('.kpi-card').forEach(card => {
     const isActive = metricToCardId[s.selectedMetric] === card.id;
     card.setAttribute('data-metric-active', isActive ? 'true' : 'false');
@@ -205,10 +204,10 @@ async function init() {
       });
     }
 
-    // ── Metric selector ─────────────────────────────────────
+    // ── Metric selector (primary metrics only; AQI & advanced notes live in Advanced Exploration) ──
     const metricSel = document.getElementById('global-metric');
     if (metricSel) {
-      Object.keys(metrics).forEach(key => {
+      ['pm25', 'traffic', 'efficiency', 'aqi'].forEach(key => {
         const opt = document.createElement('option');
         opt.value = key;
         opt.textContent = metrics[key].label;
@@ -237,22 +236,17 @@ async function init() {
       clearStateBtn.addEventListener('click', () => setState({ selectedStates: [], activeStoryPreset: null }));
     }
 
-    // ── Quick Cohorts ───────────────────────────────────────
-    document.querySelectorAll('.btn-cohort').forEach(btn => {
+    // ── Finding cards → apply preset + scroll to the evidence ──
+    const TAB_TO_SECTION = { map: 'section-where', timeline: 'section-when', scatter: 'section-relationships', seasons: 'section-advanced', guide: 'section-advanced' };
+    document.querySelectorAll('[data-preset-btn]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const cohort = btn.getAttribute('data-cohort');
-        if (cohort === 'west') {
-          setState({ selectedStates: ['California', 'Oregon', 'Washington'], activeStoryPreset: null });
-        } else if (cohort === 'midwest') {
-          setState({ selectedStates: ['Illinois', 'Indiana', 'Ohio', 'Michigan', 'Wisconsin'], activeStoryPreset: null });
-        } else if (cohort === 'top-polluted') {
-          const grouped = d3.rollup(rawData, v => d3.mean(v, d => d.Avg_PM2_5), d => d.State_Name);
-          const top5 = Array.from(grouped, ([name, val]) => ({ name, val }))
-            .sort((a, b) => b.val - a.val)
-            .slice(0, 5)
-            .map(d => d.name);
-          setState({ selectedStates: top5, activeStoryPreset: null });
-        }
+        const id = btn.getAttribute('data-preset-btn');
+        const preset = STORY_PRESETS.find(p => p.id === id);
+        if (!preset) return;
+        applyStoryPreset(id);
+        if (preset.insightTab) activateTab(preset.insightTab);
+        const target = document.getElementById(TAB_TO_SECTION[preset.insightTab] || 'section-where');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
 
@@ -261,7 +255,6 @@ async function init() {
     createKPIs('#kpi-strip');
     createMap('#map-wrapper');
     createScatterplot('#scatter-wrapper');
-    createQuadrant('#quadrant-wrapper');
     createHeatmap('#heatmap-wrapper');
     createTimeline('#area-chart-container');
     createSmallMultiples('#small-multiples-wrapper');
@@ -272,7 +265,6 @@ async function init() {
     subscribe(updateKPIs);
     subscribe(updateMap);
     subscribe(updateScatterplot);
-    subscribe(updateQuadrant);
     subscribe(updateHeatmap);
     subscribe(updateTimeline);
     subscribe(updateSmallMultiples);
