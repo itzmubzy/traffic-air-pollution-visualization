@@ -2,11 +2,15 @@
 import { state, metrics, toggleStateSelection, setHoveredState, subscribeHover } from './state.js';
 import { stateAbbr, pearson, fmtMetric } from './utils.js';
 import { setInsight } from './insights.js';
+import { computeAnomalies, ANOMALY_COLOR, anomalyNameSet } from './anomalies.js';
 
 const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 const W = 420, H = 320;
 
-let svg, x, y, xAxis, yAxis, tooltip, gAnno, gTrend, gMedian;
+let svg, x, y, xAxis, yAxis, tooltip, gAnno, gTrend, gMedian, gAnomaly;
+let currentAnomalies = [];
+
+export function getAnomalies() { return currentAnomalies; }
 
 export function createScatterplot(containerId) {
     const container = d3.select(containerId);
@@ -52,6 +56,7 @@ export function createScatterplot(containerId) {
         .attr('fill', 'var(--text-muted)');
 
     gAnno = svg.append('g').attr('class', 'scatter-anno');
+    gAnomaly = svg.append('g').attr('class', 'scatter-anomaly');
 
     tooltip = d3.select('body').select('.scatter-tooltip');
     if (tooltip.empty()) {
@@ -107,6 +112,7 @@ export function updateScatterplot(currentState) {
 
     _annotate(data);
     _callouts(data, currentState);
+    currentAnomalies = computeAnomalies(data);
 
     x.domain([0, d3.max(data, d => d.traffic)]).nice();
     y.domain([0, d3.max(data, d => d.metric)]).nice();
@@ -140,12 +146,14 @@ export function updateScatterplot(currentState) {
 
     const circles = svg.selectAll('.dot').data(data, d => d.stateName);
 
+    const isAnomaly = anomalyNameSet(currentAnomalies);
+
     circles.enter().append('circle')
         .attr('class', 'dot')
         .attr('cx', d => x(d.traffic))
         .attr('cy', d => y(d.metric))
         .attr('r', 0)
-        .attr('fill', 'var(--accent)')
+        .attr('fill', d => isAnomaly.has(d.stateName) ? ANOMALY_COLOR : 'var(--accent)')
         .attr('fill-opacity', 0.75)
         .attr('stroke', 'none')
         .attr('tabindex', 0)
@@ -177,11 +185,31 @@ export function updateScatterplot(currentState) {
         .transition().duration(400)
         .attr('cx', d => x(d.traffic))
         .attr('cy', d => y(d.metric))
-        .attr('fill', d => isSelected(d.stateName) ? 'var(--highlight)' : 'var(--accent)')
-        .attr('r', d => isSelected(d.stateName) ? 7 : 5)
+        .attr('fill', d => isSelected(d.stateName) ? 'var(--highlight)' : isAnomaly.has(d.stateName) ? ANOMALY_COLOR : 'var(--accent)')
+        .attr('r', d => isSelected(d.stateName) ? 7 : isAnomaly.has(d.stateName) ? 6.5 : 5)
         .attr('fill-opacity', d => !hasSelection || isSelected(d.stateName) ? 0.8 : 0.15);
 
     circles.exit().transition().duration(300).attr('r', 0).remove();
+
+    // ── Anomaly accents: pulsing mint ring + "busy but clean" labels ──
+    gAnomaly.selectAll('*').remove();
+    currentAnomalies.slice(0, 3).forEach(a => {
+      const px = x(a.traffic), py = y(a.metric);
+      gAnomaly.append('circle')
+        .attr('cx', px).attr('cy', py).attr('r', 11)
+        .attr('fill', 'none').attr('stroke', ANOMALY_COLOR)
+        .attr('stroke-width', 1.2).attr('class', 'anno-pulse')
+        .attr('stroke-opacity', 0.9);
+      const above = py > 26;
+      const tx = Math.min(Math.max(px, 66), W - 66);
+      gAnomaly.append('text')
+        .attr('class', 'anno-label')
+        .attr('fill', ANOMALY_COLOR)
+        .attr('x', tx)
+        .attr('y', above ? py - 16 : py + 22)
+        .attr('text-anchor', 'middle')
+        .text(`✦ ${stateAbbr[a.stateName] || a.stateName} · busy but clean`);
+    });
 }
 
 // ── Trendline Calculation & Drawing ──────────────────────────

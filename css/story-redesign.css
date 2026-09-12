@@ -1,0 +1,478 @@
+/* ══════════════════════════════════════════════════════════════
+   story-redesign.css — 3-part guided story, KPI callouts,
+   anomaly accents, chapter stepper & Insight Bubbles
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Hero KPI callouts ──────────────────────────────────────── */
+.kpi-callouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+.kpi-callout {
+  padding: 18px 16px 14px;
+  text-align: center;
+  border-radius: var(--radius);
+  transition: transform .25s ease, border-color .25s ease;
+}
+.kpi-callout:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+.kpi-callout-value {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.kpi-callout-label {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+/* ── Progressive disclosure intro ───────────────────────────── */
+.intro-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  max-width: 980px;
+}
+.intro-details-item { border-radius: var(--radius-sm); overflow: hidden; }
+.intro-details-item summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  list-style: none;
+  user-select: none;
+}
+.intro-details-item summary::-webkit-details-marker { display: none; }
+.intro-details-item summary::before { content: '▸ '; color: var(--accent); }
+.intro-details-item[open] summary::before { content: '▾ '; }
+.intro-details-item summary:hover { color: var(--focus); }
+.intro-details-body { padding: 0 16px 14px; font-size: 0.86rem; color: var(--text-secondary); }
+
+/* ── Chapter stepper nav ────────────────────────────────────── */
+.chapter-nav {
+  position: sticky;
+  top: 10px;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 8px;
+  margin: 22px 0 6px;
+}
+.chapter-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.chapter-step:hover { background: var(--accent-dim); color: var(--text-primary); }
+.chapter-step.is-current {
+  background: var(--accent-soft);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+.chapter-step-num {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--highlight));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.chapter-step-label { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.chapter-step-label b { font-size: 0.86rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chapter-step-label small { font-size: 0.7rem; color: var(--text-muted); }
+
+/* ── Chapter headers ────────────────────────────────────────── */
+.chapter { padding-top: 8px; }
+.chapter-head { padding: 26px 4px 4px; max-width: 780px; }
+.chapter-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--highlight);
+  margin-bottom: 8px;
+}
+.chapter-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.chapter-lead { font-size: 0.95rem; color: var(--text-secondary); margin: 0; }
+
+/* ── Anomaly accent hints ───────────────────────────────────── */
+.anomaly-inline { color: #34d399; font-weight: 700; }
+.anomaly-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.08);
+  color: #a7f3d0;
+  font-size: 0.8rem;
+}
+.anomaly-swatch {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
+}
+svg .scatter-anomaly text, svg .map-anomaly text { font-family: var(--font-sans); }
+
+/* ── Insight Bubbles ────────────────────────────────────────── */
+/* Dedicated free-space arena: bubbles drift here, never over charts */
+.bubble-anchor.bubble-arena {
+  position: relative;
+  height: 104px;
+  margin: 4px 0 8px;
+  border-radius: var(--radius-sm);
+  background:
+    repeating-linear-gradient(45deg, rgba(148,163,184,0.04) 0 10px, transparent 10px 20px);
+  border: 1px dashed rgba(148, 163, 184, 0.16);
+  overflow: hidden;
+}
+.insight-bubble {
+  pointer-events: auto;
+  position: absolute;
+  left: 0; top: 0;             /* driven by physics (inline left/top) */
+  width: var(--bubble-size, 48px);
+  height: var(--bubble-size, 48px);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255,255,255,0.55) 0 12%, rgba(255,255,255,0.08) 30%, transparent 55%),
+    color-mix(in srgb, var(--bubble-color, #4e9ff5) 26%, rgba(7, 10, 19, 0.55));
+  box-shadow:
+    inset 0 0 0 1.5px color-mix(in srgb, var(--bubble-color, #4e9ff5) 70%, transparent),
+    0 0 14px color-mix(in srgb, var(--bubble-color, #4e9ff5) 45%, transparent);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  will-change: transform, left, top;
+  transition: transform .2s ease, filter .2s ease;
+  z-index: 30;
+}
+.insight-bubble:hover { transform: scale(1.12); filter: brightness(1.2); }
+.insight-bubble:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.bubble-icon { font-size: calc(var(--bubble-size, 48px) * 0.44); line-height: 1; }
+.insight-bubble.is-popped {
+  animation: bubble-pop .32s ease forwards;
+  pointer-events: none;
+}
+@keyframes bubble-pop {
+  0%   { transform: scale(1);    opacity: 1; }
+  55%  { transform: scale(1.35); opacity: .85; }
+  100% { transform: scale(1.7);  opacity: 0; }
+}
+
+/* FX canvas overlay (particles) */
+.bubble-fx-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Takeaway modal */
+.bubble-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 7, 14, 0.62);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .22s ease;
+  padding: 20px;
+}
+.bubble-modal-backdrop.is-open { opacity: 1; }
+.bubble-modal {
+  position: relative;
+  max-width: 420px;
+  width: 100%;
+  padding: 26px 24px 20px;
+  text-align: center;
+  transform: scale(0.92);
+  transition: transform .22s cubic-bezier(.34, 1.56, .64, 1);
+}
+.bubble-modal-backdrop.is-open .bubble-modal { transform: scale(1); }
+.bubble-modal-close {
+  position: absolute;
+  top: 10px; right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 6px;
+}
+.bubble-modal-close:hover { color: var(--text-primary); }
+.bubble-modal-icon { font-size: 2rem; margin-bottom: 8px; }
+.bubble-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.bubble-modal-body { font-size: 0.9rem; color: var(--text-secondary); text-align: left; }
+.bubble-modal-hint {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+/* Responsive stepper */
+@media (max-width: 720px) {
+  .chapter-nav { grid-template-columns: 1fr; top: 6px; }
+  .chapter-step-label small { display: none; }
+}
+
+/* ── Reset All button ───────────────────────────────────────── */
+.btn-reset-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.10);
+  color: #fca5a5;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background .2s ease, transform .15s ease, color .2s ease;
+  white-space: nowrap;
+}
+.btn-reset-all:hover {
+  background: rgba(248, 113, 113, 0.22);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.btn-reset-all:focus-visible { outline: 2px solid #f87171; outline-offset: 3px; }
+.btn-reset-all.did-reset { animation: reset-pulse .9s ease; }
+@keyframes reset-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.55); }
+  100% { box-shadow: 0 0 0 14px rgba(248, 113, 113, 0); }
+}
+
+/* ── Section 3a Objective Cards — 1-tap 3D flip + X-ray lens ── */
+.discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+.dc3-card {
+  position: relative;
+  height: 300px;
+  perspective: 1100px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  outline-offset: 4px;
+  transition: filter .25s ease;
+}
+.dc3-card:hover { filter: brightness(1.08); }
+.dc3-card:focus-visible { outline: 2px solid var(--focus); }
+.dc3-card.is-active {
+  border-color: rgba(52, 211, 153, 0.65);
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.5), 0 0 22px rgba(52, 211, 153, 0.28);
+}
+
+.dc3-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .3s cubic-bezier(.4, 1.4, .6, 1); /* crisp 300ms flip */
+}
+.dc3-card.is-flipped .dc3-inner { transform: rotateY(180deg); }
+
+.dc3-face {
+  position: absolute;
+  inset: 0;
+  padding: 20px 18px 16px;
+  border-radius: var(--radius);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+.dc3-front {
+  background: linear-gradient(160deg, rgba(32,41,66,.72), rgba(14,19,33,.78));
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.dc3-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(160deg, rgba(20,52,44,.82), rgba(9,20,18,.92));
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+/* Front content */
+.dc3-graphic {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 3.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.5));
+}
+.dc3-headline {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  position: relative;
+}
+.dc3-sub { font-size: .82rem; color: var(--text-secondary); position: relative; }
+.dc3-hint {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 7px 18px;
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(7,10,19,.6);
+  border-top: 1px solid var(--border);
+}
+
+/* ── Card 1 X-ray lens: masked "cover" with a cursor hole ──── */
+.dc3-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), transparent 55%),
+    linear-gradient(160deg, #6b5a40, #3a3226 70%, #2a2318);
+  /* the X-ray hole — instantly follows the cursor (GPU-composited mask) */
+  -webkit-mask-image: radial-gradient(circle 84px at var(--mx,-100%) var(--my,-100%), transparent 0 58px, black 80px);
+  mask-image: radial-gradient(circle 84px at var(--mx,-100%) var(--my,-100%), transparent 0 58px, black 80px);
+}
+.dc3-grain {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(rgba(255,255,255,.14) 1px, transparent 1.4px),
+    radial-gradient(rgba(0,0,0,.22) 1px, transparent 1.4px);
+  background-size: 22px 22px, 15px 15px;
+  background-position: 0 0, 7px 9px;
+  opacity: .5;
+}
+.dc3-xray {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  text-align: center;
+  background: linear-gradient(160deg, rgba(20,52,44,.9), rgba(9,20,18,.95));
+}
+.dc3-xray-icon { font-size: 1.9rem; color: #34d399; }
+.dc3-xray-stat {
+  font-size: .8rem;
+  color: #a7f3d0;
+  padding: 0 16px;
+}
+
+/* Back content */
+.dc3-back-icon { font-size: 1.5rem; }
+.dc3-back-title {
+  font-family: var(--font-display);
+  font-size: .98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.dc3-back-body { font-size: .82rem; color: #c9e8dc; margin: 0; }
+.dc3-stat {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(52, 211, 153, 0.10);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+.dc3-stat-num {
+  grid-row: span 2;
+  align-self: center;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #34d399;
+}
+.dc3-stat-label { font-size: .72rem; color: #a7f3d0; font-weight: 600; }
+.dc3-stat-val { font-size: .68rem; color: #86d9bd; }
+
+.dc3-back .btn-finding {
+  align-self: stretch;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.14);
+  color: #a7f3d0;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.dc3-back .btn-finding:hover { background: rgba(52, 211, 153, 0.28); color: #fff; }
+
+/* Mini seasonal spark bars (Card 3 back) */
+.dc3-spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 46px;
+  margin-top: 2px;
+}
+.dc3-spark span {
+  flex: 1;
+  height: var(--h, 40%);
+  min-width: 6px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #7ec8ff, #4e9ff5);
+  opacity: .85;
+}
+.dc3-spark span:nth-child(1), .dc3-spark span:nth-child(12) {
+  background: linear-gradient(180deg, #f0854a, #c85a28);
+}
+
+@media (max-width: 720px) {
+  .dc3-card { height: 280px; }
+}
+
+/* Reduced motion: flip without 3D spin */
+@media (prefers-reduced-motion: reduce) {
+  .dc3-inner { transition: opacity .3s ease; }
+  .dc3-card.is-flipped .dc3-inner { transform: none; }
+  .dc3-back { position: absolute; opacity: 0; }
+  .dc3-card.is-flipped .dc3-front { opacity: 0; }
+  .dc3-card.is-flipped .dc3-back { opacity: 1; }
+}

@@ -9,6 +9,9 @@ import { createMap, updateMap } from './map.js';
 import { createSmallMultiples, updateSmallMultiples } from './smallMultiples.js';
 import { createLegend, updateLegend } from './legend.js';
 import { createKPIs, updateKPIs } from './kpis.js';
+import { initBubbles } from './bubbles.js';
+import { getAnomalies } from './scatter.js';
+import { initDiscovery, syncObjectiveCards, presetForState } from './discovery.js';
 
 let playInterval = null;
 
@@ -274,12 +277,106 @@ async function init() {
     subscribe(updateHeatmap);
     subscribe(updateTimeline);
     subscribe(updateSmallMultiples);
+    subscribe(onSelectionSync);   // two-way card ⇄ chart binding
 
     updateFilterBar(state);
+
+    // ── Insight Bubbles (needs first scatter pass for anomaly data) ──
+    const anomalies = getAnomalies();
+    initBubbles(anomalies.length ? anomalies[0] : null);
+
+    // ── Chapter stepper: highlight current chapter on scroll ──
+    setupChapterNav();
+
+    // ── Section 3a scratch/reveal discovery cards ────────────
+    initDiscovery();
+
+    // ── Reset All Filters button ─────────────────────────────
+    setupResetAll(minYear, maxYear);
   } catch (err) {
     console.error('Dashboard init error:', err);
     setInsightError('The dataset could not be loaded, so insights are unavailable right now.');
   }
+}
+
+// ── Chapter stepper scroll-spy ───────────────────────────────
+function setupChapterNav() {
+  const steps = document.querySelectorAll('.chapter-step');
+  const chapters = document.querySelectorAll('.chapter');
+  if (!steps.length || !chapters.length) return;
+  steps.forEach(step => {
+    step.addEventListener('click', () => {
+      steps.forEach(s => s.classList.remove('is-current'));
+      step.classList.add('is-current');
+    });
+  });
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.id; // chapter-1 / 2 / 3
+      steps.forEach(s => s.classList.toggle('is-current', s.getAttribute('href') === `#${id}`));
+    });
+  }, { rootMargin: '-35% 0px -55% 0px' });
+  chapters.forEach(c => obs.observe(c));
+}
+
+// ── Two-way selection sync: state ⇄ objective cards ──────────
+// Picking a state on the map/scatter highlights + scrolls to its
+// objective card; picking a card highlights its states on the
+// charts (via applyStoryPreset); Reset/clear deactivates both.
+let lastAutoScrolled = null;
+function onSelectionSync(s) {
+  syncObjectiveCards(s);
+
+  if (s.selectedStates.length === 1 && !s.activeStoryPreset) {
+    const name = s.selectedStates[0];
+    if (name !== lastAutoScrolled) {
+      lastAutoScrolled = name;
+      const preset = presetForState(name);
+      if (preset) {
+        const card = document.querySelector(`.dc3-card[data-preset="${preset.id}"]`);
+        if (card) {
+          card.classList.add('is-flipped');   // surface its evidence instantly
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+  }
+  if (!s.selectedStates.length) lastAutoScrolled = null;
+}
+
+// ── Reset All Filters ────────────────────────────────────────
+function setupResetAll(minYear, maxYear) {
+  const btn = document.getElementById('reset-all-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    // 1) Reset shared state → notifies every subscribed chart
+    setState({
+      selectedStates: [],
+      selectedMetric: 'pm25',
+      selectedYear: 'All',
+      startDate: null,
+      endDate: null,
+      hoveredState: null,
+      activeStoryPreset: null
+    });
+
+    // 2) Sync the raw inputs the charts don't own
+    const yearSlider = document.getElementById('global-year');
+    const yearDisplay = document.getElementById('year-display');
+    const allYearsBtn = document.getElementById('all-years-btn');
+    const metricSel = document.getElementById('global-metric');
+    const stateSel = document.getElementById('global-state');
+    if (yearSlider) { yearSlider.value = maxYear; yearSlider.setAttribute('aria-valuenow', maxYear); }
+    if (yearDisplay) yearDisplay.textContent = 'All';
+    if (allYearsBtn) allYearsBtn.classList.add('is-active');
+    if (metricSel) metricSel.value = 'pm25';
+    if (stateSel) stateSel.value = '';
+
+    // 3) Tiny confirmation pulse on the button
+    btn.classList.add('did-reset');
+    setTimeout(() => btn.classList.remove('did-reset'), 900);
+  });
 }
 
 init();

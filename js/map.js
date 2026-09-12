@@ -4,10 +4,11 @@ import { state, metrics, toggleStateSelection, setHoveredState, subscribeHover }
 import { colorScale, addGlow, CAT_COLORS } from './colors.js';
 import { stateAbbr, fmtMetric } from './utils.js';
 import { setInsight } from './insights.js';
+import { computeAnomalies, ANOMALY_COLOR, anomalyNameSet } from './anomalies.js';
 
 const width = 975, height = 610;
 let svg, path, tooltip, us;
-let gStates, gMesh, gAnno;
+let gStates, gMesh, gAnno, gAnomaly;
 let glowMain, glowSel;
 let firstRender = true;
 
@@ -25,6 +26,7 @@ export async function createMap(containerId) {
   gStates = svg.append('g').attr('class', 'states');
   gMesh = svg.append('path').attr('class', 'state-borders');
   gAnno = svg.append('g').attr('class', 'map-anno');
+  gAnomaly = svg.append('g').attr('class', 'map-anomaly');
 
   tooltip = d3.select('body').append('div')
     .attr('class', 'tooltip map-tooltip')
@@ -128,8 +130,8 @@ export function updateMap(s) {
         setHoveredState(null);
         const name = d.properties.name;
         d3.select(this)
-          .attr('stroke', isSel(name) ? '#f0854a' : 'none')
-          .attr('stroke-width', isSel(name) ? 1.2 : 0)
+          .attr('stroke', isSel(name) ? '#f0854a' : isAnom.has(name) ? ANOMALY_COLOR : 'none')
+          .attr('stroke-width', isSel(name) ? 1.2 : isAnom.has(name) ? 2 : 0)
           .attr('filter', isSel(name) ? glowSel : null);
         tooltip.style('opacity', 0);
       })
@@ -151,6 +153,45 @@ export function updateMap(s) {
 
   _annotate(ranked, features, metric);
   _callouts(ranked, metric);
+
+  // ── Anomaly accents: mint outline + ✦ badge on "busy but clean" states ──
+  const anomalies = computeAnomalies(ranked.map(d => ({
+    stateName: d.name, traffic: d.traffic, metric: d.value
+  })));
+  const isAnom = anomalyNameSet(anomalies);
+
+  gStates.selectAll('path')
+    .attr('stroke', d => {
+      const name = d.properties.name;
+      if (isSel(name)) return '#f0854a';
+      if (isAnom.has(name)) return ANOMALY_COLOR;
+      return 'none';
+    })
+    .attr('stroke-width', d => {
+      const name = d.properties.name;
+      if (isSel(name)) return 1.2;
+      if (isAnom.has(name)) return 2;
+      return 0;
+    });
+
+  gAnomaly.selectAll('*').remove();
+  if (anomalies.length) {
+    const ft = features.find(f => f.properties.name === anomalies[0].stateName);
+    if (ft) {
+      const [cx, cy] = path.centroid(ft);
+      gAnomaly.append('circle')
+        .attr('cx', cx).attr('cy', cy).attr('r', 11)
+        .attr('fill', 'none').attr('stroke', ANOMALY_COLOR)
+        .attr('stroke-width', 1.5).attr('class', 'anno-pulse');
+      gAnomaly.append('text')
+        .attr('x', cx).attr('y', cy + 4)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '13px').attr('font-weight', 700)
+        .attr('fill', ANOMALY_COLOR)
+        .text('✦');
+    }
+  }
+
   firstRender = false;
 }
 
