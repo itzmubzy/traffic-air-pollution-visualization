@@ -1,6 +1,6 @@
-// discovery.js — Section 3a objective cards: 1-tap 3D flip reveal,
-// Card 1 X-ray hover lens (pure CSS mask — no per-frame canvas cost),
+// discovery.js — Section 3a learning cards: clean click-to-flip 3D reveal
 // and two-way sync between the cards and the shared chart selection.
+// (No mouse-move / X-ray lens scripts — flip is the only interaction.)
 
 import { state, setState, applyStoryPreset, STORY_PRESETS } from './state.js';
 
@@ -28,29 +28,6 @@ export function initDiscovery() {
         card.click();
       }
     });
-
-    // ── Card 1: instant X-ray hover lens (CSS mask hole follows cursor) ──
-    const front = card.querySelector('.dc3-front');
-    if (card.dataset.lens === 'on' && front) {
-      let queued = false, lx = 0, ly = 0;
-      front.addEventListener('pointermove', e => {
-        const r = front.getBoundingClientRect();
-        lx = (e.clientX - r.left) / r.width * 100;
-        ly = (e.clientY - r.top) / r.height * 100;
-        if (!queued) {                       // ≤1 style write per frame
-          queued = true;
-          requestAnimationFrame(() => {
-            front.style.setProperty('--mx', lx + '%');
-            front.style.setProperty('--my', ly + '%');
-            queued = false;
-          });
-        }
-      });
-      front.addEventListener('pointerleave', () => {
-        front.style.setProperty('--mx', '-100%');
-        front.style.setProperty('--my', '-100%');
-      });
-    }
   });
 }
 

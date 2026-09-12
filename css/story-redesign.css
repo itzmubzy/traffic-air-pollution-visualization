@@ -280,7 +280,7 @@ svg .scatter-anomaly text, svg .map-anomaly text { font-family: var(--font-sans)
   100% { box-shadow: 0 0 0 14px rgba(248, 113, 113, 0); }
 }
 
-/* ── Section 3a Objective Cards — 1-tap 3D flip + X-ray lens ── */
+/* ── Section 3a Learning Cards — unified glitch-free 3D flip ── */
 .discovery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -289,14 +289,15 @@ svg .scatter-anomaly text, svg .map-anomaly text { font-family: var(--font-sans)
 }
 .dc3-card {
   position: relative;
-  height: 300px;
-  perspective: 1100px;
+  height: 320px;                    /* fixed — grid never shifts during flip */
+  perspective: 1000px;
   cursor: pointer;
   border-radius: var(--radius);
   outline-offset: 4px;
-  transition: filter .25s ease;
+  transform: translateZ(0);         /* GPU layer — no sub-pixel jitter */
+  transition: transform .3s ease, box-shadow .3s ease;
 }
-.dc3-card:hover { filter: brightness(1.08); }
+.dc3-card:hover { transform: translateZ(0) translateY(-4px); }  /* subtle elevation */
 .dc3-card:focus-visible { outline: 2px solid var(--focus); }
 .dc3-card.is-active {
   border-color: rgba(52, 211, 153, 0.65);
@@ -305,109 +306,92 @@ svg .scatter-anomaly text, svg .map-anomaly text { font-family: var(--font-sans)
 
 .dc3-inner {
   position: relative;
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
-  transition: transform .3s cubic-bezier(.4, 1.4, .6, 1); /* crisp 300ms flip */
+  transform: translateZ(0);
+  will-change: transform;           /* promote before first flip — 60fps */
+  transition: transform .6s cubic-bezier(.3, .8, .3, 1);  /* ultra-smooth flip */
 }
-.dc3-card.is-flipped .dc3-inner { transform: rotateY(180deg); }
+.dc3-card.is-flipped .dc3-inner { transform: translateZ(0) rotateY(180deg); }
 
 .dc3-face {
   position: absolute;
   inset: 0;
-  padding: 20px 18px 16px;
+  padding: 20px 18px 18px;
   border-radius: var(--radius);
-  backface-visibility: hidden;
+  backface-visibility: hidden;      /* no mirrored-text glitch */
   -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   overflow: hidden;
 }
 .dc3-front {
   background: linear-gradient(160deg, rgba(32,41,66,.72), rgba(14,19,33,.78));
-  align-items: flex-start;
-  justify-content: flex-end;
 }
 .dc3-back {
-  transform: rotateY(180deg);
-  background: linear-gradient(160deg, rgba(20,52,44,.82), rgba(9,20,18,.92));
+  transform: translateZ(0) rotateY(180deg);
+  background: linear-gradient(160deg, rgba(20,52,44,.92), rgba(9,20,18,.96));
   border: 1px solid rgba(52, 211, 153, 0.35);
 }
 
-/* Front content */
-.dc3-graphic {
-  position: absolute;
-  top: 14px; left: 16px;
-  font-size: 3.4rem;
+/* Front anatomy — glow icon badge top-left, title block bottom */
+.dc3-badge {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
   line-height: 1;
-  filter: drop-shadow(0 6px 14px rgba(0,0,0,.5));
+  border-radius: 14px;
+  background: rgba(52, 211, 153, 0.10);
+  border: 1px solid rgba(52, 211, 153, 0.30);
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.25);
+  animation: badge-glow 2.6s ease-in-out infinite;
+}
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(52, 211, 153, 0.18); }
+  50%      { box-shadow: 0 0 22px rgba(52, 211, 153, 0.42); }
+}
+.dc3-front-bottom {
+  margin-top: auto;                 /* pinned to card bottom, all 4 cards */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .dc3-headline {
   font-family: var(--font-display);
   font-size: 1.08rem;
   font-weight: 700;
   color: var(--text-primary);
-  position: relative;
+  line-height: 1.25;
 }
-.dc3-sub { font-size: .82rem; color: var(--text-secondary); position: relative; }
+.dc3-sub {
+  font-size: .82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .dc3-hint {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 7px 18px;
-  font-size: .7rem;
+  font-size: .72rem;
   font-weight: 600;
+  letter-spacing: .03em;
   color: var(--text-muted);
-  background: rgba(7,10,19,.6);
+  padding-top: 8px;
   border-top: 1px solid var(--border);
 }
 
-/* ── Card 1 X-ray lens: masked "cover" with a cursor hole ──── */
-.dc3-cover {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), transparent 55%),
-    linear-gradient(160deg, #6b5a40, #3a3226 70%, #2a2318);
-  /* the X-ray hole — instantly follows the cursor (GPU-composited mask) */
-  -webkit-mask-image: radial-gradient(circle 84px at var(--mx,-100%) var(--my,-100%), transparent 0 58px, black 80px);
-  mask-image: radial-gradient(circle 84px at var(--mx,-100%) var(--my,-100%), transparent 0 58px, black 80px);
+/* Back anatomy — takeaway top, stat badge center, evidence button bottom */
+.dc3-back-body {
+  font-size: .84rem;
+  line-height: 1.45;
+  color: #e6fff4;                   /* high contrast on dark green back */
+  margin: 0;
 }
-.dc3-grain {
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(rgba(255,255,255,.14) 1px, transparent 1.4px),
-    radial-gradient(rgba(0,0,0,.22) 1px, transparent 1.4px);
-  background-size: 22px 22px, 15px 15px;
-  background-position: 0 0, 7px 9px;
-  opacity: .5;
-}
-.dc3-xray {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: grid;
-  place-content: center;
-  gap: 6px;
-  text-align: center;
-  background: linear-gradient(160deg, rgba(20,52,44,.9), rgba(9,20,18,.95));
-}
-.dc3-xray-icon { font-size: 1.9rem; color: #34d399; }
-.dc3-xray-stat {
-  font-size: .8rem;
-  color: #a7f3d0;
-  padding: 0 16px;
-}
-
-/* Back content */
-.dc3-back-icon { font-size: 1.5rem; }
-.dc3-back-title {
-  font-family: var(--font-display);
-  font-size: .98rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.dc3-back-body { font-size: .82rem; color: #c9e8dc; margin: 0; }
+.dc3-back-body b { color: #ffffff; }
 .dc3-stat {
   margin-top: auto;
   display: grid;
@@ -415,8 +399,8 @@ svg .scatter-anomaly text, svg .map-anomaly text { font-family: var(--font-sans)
   gap: 2px 10px;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: rgba(52, 211, 153, 0.10);
-  border: 1px solid rgba(52, 211, 153, 0.25);
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.30);
 }
 .dc3-stat-num {
   grid-row: span 2;
@@ -426,31 +410,31 @@ svg .scatter-anomaly text, svg .map-anomaly text { font-family: var(--font-sans)
   font-weight: 700;
   color: #34d399;
 }
-.dc3-stat-label { font-size: .72rem; color: #a7f3d0; font-weight: 600; }
-.dc3-stat-val { font-size: .68rem; color: #86d9bd; }
+.dc3-stat-label { font-size: .74rem; color: #c9f5e4; font-weight: 600; }
+.dc3-stat-val   { font-size: .70rem; color: #a7f3d0; }
 
-.dc3-back .btn-finding {
+.dc3-back .dc3-evidence-btn {
+  margin-top: 0;
   align-self: stretch;
   text-align: center;
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-radius: 999px;
   border: 1px solid rgba(52, 211, 153, 0.45);
   background: rgba(52, 211, 153, 0.14);
-  color: #a7f3d0;
+  color: #d9fbe9;
   font-size: .78rem;
   font-weight: 700;
   cursor: pointer;
   transition: background .2s ease;
 }
-.dc3-back .btn-finding:hover { background: rgba(52, 211, 153, 0.28); color: #fff; }
+.dc3-back .dc3-evidence-btn:hover { background: rgba(52, 211, 153, 0.30); color: #ffffff; }
 
 /* Mini seasonal spark bars (Card 3 back) */
 .dc3-spark {
   display: flex;
   align-items: flex-end;
   gap: 3px;
-  height: 46px;
-  margin-top: 2px;
+  height: 40px;
 }
 .dc3-spark span {
   flex: 1;
@@ -465,14 +449,17 @@ svg .scatter-anomaly text, svg .map-anomaly text { font-family: var(--font-sans)
 }
 
 @media (max-width: 720px) {
-  .dc3-card { height: 280px; }
+  .dc3-card { height: 300px; }
 }
 
-/* Reduced motion: flip without 3D spin */
+/* Reduced motion: crossfade instead of 3D spin */
 @media (prefers-reduced-motion: reduce) {
-  .dc3-inner { transition: opacity .3s ease; }
+  .dc3-card, .dc3-inner { transition: opacity .3s ease, box-shadow .3s ease; }
+  .dc3-card:hover { transform: none; }
+  .dc3-inner { will-change: opacity; }
   .dc3-card.is-flipped .dc3-inner { transform: none; }
-  .dc3-back { position: absolute; opacity: 0; }
+  .dc3-back { opacity: 0; }
   .dc3-card.is-flipped .dc3-front { opacity: 0; }
   .dc3-card.is-flipped .dc3-back { opacity: 1; }
+  .dc3-badge { animation: none; }
 }

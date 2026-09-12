@@ -288,7 +288,7 @@ async function init() {
     // ── Chapter stepper: highlight current chapter on scroll ──
     setupChapterNav();
 
-    // ── Section 3a scratch/reveal discovery cards ────────────
+    // ── Section 3a click-to-flip learning cards ──────────────
     initDiscovery();
 
     // ── Reset All Filters button ─────────────────────────────
