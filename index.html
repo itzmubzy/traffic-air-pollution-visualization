@@ -112,7 +112,10 @@
           </div>
         </div>
         <div id="map-wrapper"></div>
-        <div class="takeaway" id="map-takeaway">A handful of states stand out — hover or click to see where yours ranks.</div>
+        <div class="map-finding">
+          <div class="map-finding-label">Key finding</div>
+          <div class="takeaway" id="map-takeaway">A handful of states stand out — hover or click to see where yours ranks.</div>
+        </div>
         <details class="chart-extras">
           <summary>Color scale &amp; how to read the map</summary>
           <div id="legend-panel"></div>
@@ -164,7 +167,7 @@
           <div class="panel-head">
             <div>
               <div class="chart-title">Traffic volume vs. pollution, state by state</div>
-              <div class="chart-sub">One dot = one state, averaged over the selected window · dashed line = overall trend · click a dot to select it</div>
+              <div class="chart-sub">One dot = one state, averaged over the selected window · <span class="cue">dashed line = overall trend</span> · <span class="cue">click a dot to select it</span></div>
             </div>
           </div>
           <div id="scatter-wrapper"></div>
@@ -259,7 +262,7 @@
         <div class="panel-head ws-head">
           <div>
             <div class="chart-title">Seasonal rhythm — state × month matrix</div>
-            <div class="chart-sub">Ranked most polluted → cleanest · click state rows to pin them · your selection traces every chart</div>
+            <div class="chart-sub">Ranked most polluted → cleanest · <span class="cue">click state rows to pin them</span> · your selection traces every chart</div>
           </div>
           <div class="ws-picker">
             <label for="global-state">State</label>
@@ -276,7 +279,7 @@
         <div class="panel-head">
           <div>
             <div class="chart-title">Side-by-side state journeys</div>
-            <div class="chart-sub">Monthly lines for selected states — top states shown until you pick your own</div>
+            <div class="chart-sub">Monthly lines for selected states — <span class="cue">✕ removes a card</span> · top states shown until you pick your own</div>
           </div>
         </div>
         <div id="small-multiples-wrapper"></div>

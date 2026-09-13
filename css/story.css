@@ -380,19 +380,42 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 /* the map's key finding — the strongest text moment of chapter 1 */
-#map-takeaway {
+.map-finding {
   margin-top: 24px;
-  padding: 18px 22px;
+  padding: 16px 22px 18px;
   background: var(--ink-panel);
   border: 1px solid var(--ink-rule-strong);
   border-left: 3px solid var(--acc-amber);
   border-radius: 8px;
+}
+.map-finding-label {
+  font-family: var(--font-num);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--acc-amber);
+  margin-bottom: 8px;
+}
+.map-finding .takeaway {
+  margin: 0;
+  padding: 0;
+  border: none;
   font-size: 17.5px;
   line-height: 1.6;
   color: var(--ink-text);
   max-width: none;
 }
-#map-takeaway b { color: var(--acc-amber); font-weight: 700; }
+.map-finding .takeaway b { color: var(--acc-amber); font-weight: 700; }
+
+/* scatter hierarchy: the OLS trend is the protagonist; the median
+   crosshair is scaffolding and steps back */
+#scatter-wrapper .scatter-trend line {
+  stroke: rgba(78, 159, 245, 0.9);
+  stroke-width: 2.5;
+}
+#scatter-wrapper .median-x,
+#scatter-wrapper .median-y { stroke: rgba(148, 163, 184, 0.20); }
+#scatter-wrapper .median-label { opacity: 0.6; font-size: 9px; }
 
 /* details disclosure (legend / methods) — quiet by default */
 .chart-extras, .methods-block {
@@ -547,6 +570,11 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   color: var(--ink-text-faint);
 }
 #heatmap-wrapper svg { max-width: 980px; margin: 0 auto; }
+
+/* affordances: everything clickable announces itself */
+.chart-sub .cue { color: var(--acc-blue); }
+.hm-row { cursor: pointer; }
+.sm-card, .sm-card .sm-remove-btn { cursor: pointer; }
 
 /* chart-internal text (SVG scales with container width — these are the
    base sizes the viewBox multiplies up; per-chart caps keep the effective
