@@ -42,19 +42,25 @@
 
   <!-- ══ HERO ══════════════════════════════════════════════════ -->
   <header class="hero">
-    <div class="hero-kicker">Interactive data story · U.S. traffic &amp; air quality · 2015–2025</div>
-    <h1 class="hero-title">Do busier roads<br>mean dirtier air?</h1>
-    <p class="hero-sub">
-      A decade of monthly records — traffic counts from the U.S. DOT and air-quality
-      readings from the EPA, across 50 states and Washington, D.C. — set out to answer one question.
-    </p>
-    <div class="rq-block">
-      <div class="rq-label">Research question</div>
-      <p class="rq-text">How closely are traffic volume and air pollution related —
-        and why do some high-traffic states have relatively cleaner air?</p>
+    <div class="hero-grid">
+      <div class="hero-main">
+        <div class="hero-kicker">Interactive data story · U.S. traffic &amp; air quality · 2015–2025</div>
+        <h1 class="hero-title">Do busier roads<br>mean <span class="title-accent">dirtier air?</span></h1>
+        <p class="hero-sub">
+          A decade of monthly records — traffic counts from the U.S. DOT and air-quality
+          readings from the EPA, across 50 states and Washington, D.C. — set out to answer one question.
+        </p>
+        <a class="hero-cta" href="#chapter-1">Explore the data<span class="cta-arrow" aria-hidden="true">↓</span></a>
+        <p class="hero-context">6,700 state-month records · reporting gaps (&lt;2.5%) flagged, not imputed · all findings associative, not causal</p>
+      </div>
+      <aside class="hero-side" aria-label="Research question">
+        <div class="rq-block">
+          <div class="rq-label">Research question</div>
+          <p class="rq-text">How closely are traffic volume and air pollution related —
+            and why do some high-traffic states have relatively cleaner air?</p>
+        </div>
+      </aside>
     </div>
-    <a class="hero-cta" href="#chapter-1">Explore the data<span class="cta-arrow" aria-hidden="true">↓</span></a>
-    <p class="hero-context">6,700 state-month records · reporting gaps (&lt;2.5%) flagged, not imputed · all findings associative, not causal</p>
     <div class="hero-byline">K M Mubin · ID 24-57300-2 · Data Visualization [A]</div>
   </header>
 
@@ -249,38 +255,31 @@
     </div>
 
     <section class="story-section advanced-section" id="section-advanced">
-      <div class="panel compare-picker">
-        <div class="control-group control-inline">
-          <label for="global-state">State</label>
-          <div class="state-select-row">
+      <div class="panel ws-panel">
+        <div class="panel-head ws-head">
+          <div>
+            <div class="chart-title">Seasonal rhythm — state × month matrix</div>
+            <div class="chart-sub">Ranked most polluted → cleanest · click state rows to pin them · your selection traces every chart</div>
+          </div>
+          <div class="ws-picker">
+            <label for="global-state">State</label>
             <select id="global-state" aria-label="Select state">
               <option value="">All States</option>
             </select>
-            <button id="clear-state-btn" class="btn-ghost" aria-label="Clear state selection">Clear selection</button>
+            <button id="clear-state-btn" class="btn-ghost" aria-label="Clear state selection">Clear</button>
           </div>
         </div>
-        <p class="compare-hint">Selected states are highlighted on every chart above and get their own monthly journey below.</p>
+        <div id="heatmap-wrapper"></div>
       </div>
 
-      <div class="duo-grid">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="chart-title">Seasonal rhythm — state × month matrix</div>
-              <div class="chart-sub">Ranked most polluted → cleanest · click state rows to pin them</div>
-            </div>
+      <div class="panel ws-panel">
+        <div class="panel-head">
+          <div>
+            <div class="chart-title">Side-by-side state journeys</div>
+            <div class="chart-sub">Monthly lines for selected states — top states shown until you pick your own</div>
           </div>
-          <div id="heatmap-wrapper"></div>
         </div>
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="chart-title">Side-by-side state journeys</div>
-              <div class="chart-sub">Monthly lines for selected states (top states shown by default)</div>
-            </div>
-          </div>
-          <div id="small-multiples-wrapper"></div>
-        </div>
+        <div id="small-multiples-wrapper"></div>
       </div>
 
       <details class="methods-block" id="methods">

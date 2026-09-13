@@ -5,7 +5,7 @@ import { setInsight } from './insights.js';
 import { computeAnomalies, ANOMALY_COLOR, anomalyNameSet } from './anomalies.js';
 
 const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-const W = 420, H = 320;
+const W = 640, H = 420;   // wider viewBox: keeps label text proportionate at desktop widths
 
 let svg, x, y, xAxis, yAxis, tooltip, gAnno, gTrend, gMedian, gAnomaly;
 let currentAnomalies = [];
