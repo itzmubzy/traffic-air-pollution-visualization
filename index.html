@@ -3,397 +3,301 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Interactive data story: how traffic volume and vehicle-fleet cleanliness are associated with air pollution (AQI and PM2.5) across 50 US states + D.C., 2015–2025.">
-  <meta name="theme-color" content="#070a13">
+  <meta name="description" content="Interactive data story: how traffic volume and air pollution are related across 50 US states + D.C., 2015–2025 — and why some high-traffic states have relatively cleaner air.">
+  <meta name="theme-color" content="#0a0e17">
   <meta name="referrer" content="strict-origin-when-cross-origin">
- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://d3js.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://d3js.org; object-src 'none'; base-uri 'self'">
-  <!-- Open Graph -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://d3js.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://d3js.org; object-src 'none'; base-uri 'self'">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Do Busier Roads Mean Dirtier Air?">
   <meta property="og:description" content="A decade of U.S. data reveals why the highest-traffic states aren't always the most polluted.">
   <title>Do Busier Roads Mean Dirtier Air? | Interactive Data Story</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070a13'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%234e9ff5' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23f0854a'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e17'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%234e9ff5' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23f0854a'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/story-redesign.css">
+  <link rel="stylesheet" href="css/story.css">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
 </head>
 <body>
 
-<div class="page-wrap">
+<!-- ══ QUIET STICKY WAYFINDING ═══════════════════════════════ -->
+<nav class="topnav" aria-label="Story navigation">
+  <a class="brand" href="#top">Traffic <span class="brand-x">×</span> Air</a>
+  <div class="chapter-nav">
+    <a class="chapter-step" href="#chapter-1" data-chapter-step="1">Where</a>
+    <a class="chapter-step" href="#chapter-2" data-chapter-step="2">Over time</a>
+    <a class="chapter-step" href="#chapter-3" data-chapter-step="3">The link</a>
+    <a class="chapter-step" href="#chapter-4" data-chapter-step="4">Why it varies</a>
+    <a class="chapter-step" href="#chapter-5" data-chapter-step="5">Explore</a>
+  </div>
+  <a class="view-summary" href="#viewing" title="Jump back to the filters">
+    <span class="view-label">Viewing</span>
+    <span id="filter-bar"><span class="filter-pill"><span class="pill-key">Loading</span><span class="pill-val">—</span></span></span>
+  </a>
+</nav>
 
-  <!-- ══ HERO ════════════════════════════════════════════════ -->
+<div class="page-wrap" id="top">
+
+  <!-- ══ HERO ══════════════════════════════════════════════════ -->
   <header class="hero">
-    <div class="hero-kicker">Interactive Data Story · United States · Jan 2015 — Dec 2025</div>
-    <h1>Do busier roads mean <span class="grad-text">dirtier air?</span></h1>
+    <div class="hero-kicker">Interactive data story · U.S. traffic &amp; air quality · 2015–2025</div>
+    <h1 class="hero-title">Do busier roads<br>mean dirtier air?</h1>
     <p class="hero-sub">
-      A decade of U.S. data reveals why the highest-traffic states aren't always the most polluted.
+      A decade of monthly records — traffic counts from the U.S. DOT and air-quality
+      readings from the EPA, across 50 states and Washington, D.C. — set out to answer one question.
     </p>
+    <div class="rq-block">
+      <div class="rq-label">Research question</div>
+      <p class="rq-text">How closely are traffic volume and air pollution related —
+        and why do some high-traffic states have relatively cleaner air?</p>
+    </div>
+    <a class="hero-cta" href="#chapter-1">Explore the data<span class="cta-arrow" aria-hidden="true">↓</span></a>
+    <p class="hero-context">6,700 state-month records · reporting gaps (&lt;2.5%) flagged, not imputed · all findings associative, not causal</p>
     <div class="hero-byline">K M Mubin · ID 24-57300-2 · Data Visualization [A]</div>
-
-    <!-- ── HIGH-CONTRAST KPI CALLOUTS ── -->
-    <div class="kpi-callouts" role="list" aria-label="Key numbers at a glance">
-      <div class="kpi-callout glass" role="listitem">
-        <div class="kpi-callout-value grad-text">51</div>
-        <div class="kpi-callout-label">states tracked</div>
-      </div>
-      <div class="kpi-callout glass" role="listitem">
-        <div class="kpi-callout-value grad-text">132</div>
-        <div class="kpi-callout-label">months of data</div>
-      </div>
-      <div class="kpi-callout glass" role="listitem">
-        <div class="kpi-callout-value grad-text">✦</div>
-        <div class="kpi-callout-label">busy-but-clean outlier states</div>
-      </div>
-      <div class="kpi-callout glass" role="listitem">
-        <div class="kpi-callout-value grad-text">❄️</div>
-        <div class="kpi-callout-label">winter beats traffic as the top driver</div>
-      </div>
-    </div>
-
-    <!-- ── PROGRESSIVE DISCLOSURE: context on demand ── -->
-    <div class="intro-details">
-      <details class="intro-details-item glass">
-        <summary>🎯 Objective &amp; research question</summary>
-        <div class="intro-details-body">
-          <p><b>Objective:</b> analyze 10 years of monthly U.S. traffic and air-quality data (EPA + U.S. DOT) to see <b>where</b> traffic and pollution overlap, <b>when</b> pollution peaks, how <b>strongly</b> they move together, and <b>why</b> some high-traffic states look relatively clean.</p>
-          <p class="rq-main">How closely are traffic volume and air pollution related — and why do some high-traffic states have relatively cleaner air?</p>
-          <p class="rq-secondary">One possible explanation is that vehicles run cleaner in some states — but note: this dataset measures <b>traffic counts and pollution readings</b>, not vehicles or engines themselves. All findings are associative, not causal.</p>
-        </div>
-      </details>
-      <details class="intro-details-item glass">
-        <summary>📦 The data</summary>
-        <div class="intro-details-body">
-          <p>Monthly averages for <b>50 states + Washington, D.C.</b> · Jan 2015 – Dec 2025 · 6,700 records · U.S. DOT FHWA traffic counts joined with EPA AirData monitoring. Reporting gaps (&lt;2.5%) are flagged, not imputed.</p>
-        </div>
-      </details>
-    </div>
   </header>
 
-  <!-- ── 3-PART GUIDED STORY STEPPER ── -->
-  <nav class="chapter-nav glass" aria-label="Story chapters">
-    <a class="chapter-step is-current" href="#chapter-1" data-chapter-step="1">
-      <span class="chapter-step-num">1</span>
-      <span class="chapter-step-label"><b>Where &amp; When</b><small>the pollution landscape</small></span>
-    </a>
-    <a class="chapter-step" href="#chapter-2" data-chapter-step="2">
-      <span class="chapter-step-num">2</span>
-      <span class="chapter-step-label"><b>Does traffic explain it?</b><small>the core test</small></span>
-    </a>
-    <a class="chapter-step" href="#chapter-3" data-chapter-step="3">
-      <span class="chapter-step-num">3</span>
-      <span class="chapter-step-label"><b>Why some stay clean</b><small>the anomalies &amp; takeaways</small></span>
-    </a>
-  </nav>
-
-
-
-  <!-- ══ CONTROLS ════════════════════════════════════════════ -->
-  <section class="controls-section glass">
-    <div class="controls-bar">
-
-      <div class="control-group">
-        <label for="global-year">Timeline Animation &amp; Year Filter</label>
-        <div class="year-slider-wrap">
-          <div class="year-slider-track">
-            <button id="btn-play-year" class="btn-play" aria-label="Play timeline animation" title="Animate through 2015–2025">
-              <span id="play-icon" aria-hidden="true">▶</span>
-            </button>
-            <span class="year-edge" id="year-min">2015</span>
-            <input type="range" id="global-year" step="1"
-                   aria-label="Select year" aria-valuemin="2015" aria-valuemax="2025">
-            <span class="year-edge" id="year-max">2025</span>
-          </div>
-          <div class="year-value-row">
-            <span class="year-display" id="year-display" aria-live="polite">All</span>
-            <button id="all-years-btn" class="btn-reset-year is-active"
-                    aria-label="Show all years">All Years</button>
-          </div>
+  <!-- ══ VIEWING CONTROLS (in flow, not sticky) ════════════════ -->
+  <section class="viewing" id="viewing" aria-label="Filters">
+    <div class="viewing-inner">
+      <div class="control-group control-year">
+        <label for="global-year">Year</label>
+        <div class="year-slider-track">
+          <button id="btn-play-year" class="btn-play" aria-label="Play timeline animation" title="Animate through 2015–2025">
+            <span id="play-icon" aria-hidden="true">▶</span>
+          </button>
+          <span class="year-edge" id="year-min">2015</span>
+          <input type="range" id="global-year" step="1"
+                 aria-label="Select year" aria-valuemin="2015" aria-valuemax="2025">
+          <span class="year-edge" id="year-max">2025</span>
+          <span class="year-display" id="year-display" aria-live="polite">All</span>
+          <button id="all-years-btn" class="btn-ghost is-active" aria-label="Show all years">All years</button>
         </div>
       </div>
-
       <div class="control-group">
-        <label for="global-metric">What to measure</label>
+        <label for="global-metric">Metric</label>
         <select id="global-metric" aria-label="Select metric"></select>
       </div>
-
-      <div class="control-group">
-        <button id="reset-all-btn" class="btn-reset-all" type="button"
-                aria-label="Reset all filters to defaults">
-          <span aria-hidden="true">↺</span> Reset All Filters
-        </button>
+      <div class="control-group control-reset">
+        <button id="reset-all-btn" class="btn-ghost btn-reset" type="button" aria-label="Reset all filters to defaults">Reset filters</button>
       </div>
-
-      <div class="control-group control-hint">
-        <span class="hint-text">💡 Tip: click any state on the map or charts to trace it everywhere. More tools live in <a href="#section-advanced">Advanced Exploration</a>.</span>
-      </div>
-
+      <p class="viewing-hint">Tip — click any state on a chart to trace it through the whole story.</p>
     </div>
   </section>
 
-  <div id="filter-bar" class="filter-bar">
-    <span class="filter-pill"><span class="pill-key">Loading</span><span class="pill-val">—</span></span>
-  </div>
-
-
-  <!-- ══ CHAPTER 1 · WHERE & WHEN ═══════════════════════════ -->
-  <div class="story-layout">
   <main class="story-main">
+
+  <!-- ══ 01 · WHERE POLLUTION HAPPENS ══════════════════════════ -->
   <div class="chapter" id="chapter-1">
     <div class="chapter-head">
-      <div class="chapter-kicker">Chapter 1</div>
-      <h2 class="chapter-title">Where &amp; when is pollution happening?</h2>
-      <p class="chapter-lead">Pollution isn't spread evenly — and it isn't worst when traffic is busiest. It's worst <b>where the land traps it</b> and <b>when winter locks it in</b>.</p>
+      <div class="chapter-kicker"><span class="ghost-num" aria-hidden="true">01</span>Where pollution happens</div>
+      <h2 class="chapter-title">Which states carry the most polluted air?</h2>
+      <p class="chapter-lead">Pollution isn't spread evenly. It clusters in a handful of states —
+        click any state to trace it through every chart in this story.</p>
     </div>
 
-  <section class="story-section" id="section-where">
-    <div class="section-label">1a · Where is it happening?</div>
-    <p class="section-lead">The map shows which states carry the highest average levels. <span class="anomaly-hint"><span class="anomaly-swatch" aria-hidden="true"></span> mint outline = <b>busy but clean</b> outlier state — pop a bubble to learn why.</span></p>
-    <div class="panel glass">
-      <div class="panel-head">
-        <div>
-          <div class="chart-title">Which states have the most polluted air?</div>
-          <div class="chart-sub">Darker = more polluted · <span class="anomaly-inline">✦ mint = anomaly</span> · click any state to trace it through the whole story</div>
+    <section class="story-section" id="section-where">
+      <div class="panel chart-hero">
+        <div class="panel-head">
+          <div>
+            <div class="chart-title">Average <span id="map-metric-label">PM2.5</span> by state</div>
+            <div class="chart-sub">Darker = more polluted · <span class="anomaly-inline">mint outline = busy-but-clean outlier</span> · click a state to select it</div>
+          </div>
         </div>
+        <div id="map-wrapper"></div>
+        <div class="takeaway" id="map-takeaway">A handful of states stand out — hover or click to see where yours ranks.</div>
+        <details class="chart-extras">
+          <summary>Color scale &amp; how to read the map</summary>
+          <div id="legend-panel"></div>
+        </details>
       </div>
-      <div id="map-wrapper"></div>
-      <div class="bubble-anchor bubble-arena" id="bubble-anchor-map" role="group" aria-label="Floating insight bubbles � click to pop"></div>
-      <div class="takeaway" id="map-takeaway">A handful of states stand out — hover or click to see where yours ranks.</div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <!-- ══ 02 · WHEN ═══════════════════════════════════════════ -->
-  <section class="story-section" id="section-when">
-    <div class="section-label">1b · When does it get worse?</div>
-    <p class="section-lead">If traffic alone drove pollution, the busiest times would be worst — instead, the strongest rhythm is <b>seasonal</b>.</p>
-    <div class="panel glass">
-      <div class="panel-head">
-        <div>
-          <div class="chart-title">National air pollution, month by month</div>
-          <div class="chart-sub">Shaded bands mark winter months · ▶ animates through the years · drag across the chart to focus on a period</div>
-        </div>
-      </div>
-      <div id="area-chart-container"></div>
-      <div class="takeaway" id="timeline-takeaway">Pollution peaks in winter, when cold air tends to trap emissions near the ground.</div>
-    </div>
-  </section>
-  </div><!-- /chapter-1 -->
-
-  <!-- ══ CHAPTER 2 · DOES TRAFFIC EXPLAIN POLLUTION? ════════ -->
+  <!-- ══ 02 · HOW POLLUTION CHANGES ════════════════════════════ -->
   <div class="chapter" id="chapter-2">
     <div class="chapter-head">
-      <div class="chapter-kicker">Chapter 2</div>
-      <h2 class="chapter-title">Does traffic explain pollution?</h2>
-      <p class="chapter-lead">The core test. If traffic volume explained pollution, every state would sit close to the trend line. Watch how many don't — <b>that gap is where the real story lives</b>.</p>
+      <div class="chapter-kicker"><span class="ghost-num" aria-hidden="true">02</span>How pollution changes</div>
+      <h2 class="chapter-title">Is air quality improving — and when does it get worse?</h2>
+      <p class="chapter-lead">Nationally, pollution has trended <b>down</b> over the decade.
+        But if traffic alone drove it, the busiest driving months would be worst — instead,
+        the strongest rhythm is <b>seasonal</b>.</p>
     </div>
 
-  <section class="story-section" id="section-relationships">
-    <div class="section-label">2 · Does traffic explain pollution?</div>
-    <div class="panel glass">
-      <div class="panel-head">
-        <div>
-          <div class="chart-title">Do busier roads mean dirtier air?</div>
-          <div class="chart-sub">One dot = one state · dashed line = overall trend · <span class="anomaly-inline">✦ mint = high traffic, low pollution</span></div>
+    <section class="story-section" id="section-when">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="chart-title">National air pollution, month by month — <span id="area-chart-metric-label">PM2.5</span></div>
+            <div class="chart-sub">Shaded bands mark winter months · ▶ animates through the years · drag across the chart to focus on a period</div>
+          </div>
         </div>
+        <div id="area-chart-container"></div>
+        <div class="takeaway" id="timeline-takeaway">Pollution peaks in winter, when cold air tends to trap emissions near the ground.</div>
       </div>
-      <div id="scatter-wrapper"></div>
-      <div class="bubble-anchor bubble-arena" id="bubble-anchor-scatter" role="group" aria-label="Floating insight bubbles � click to pop"></div>
-      <div class="takeaway" id="scatter-takeaway">Traffic is only part of the story — some of the busiest states keep their air relatively clean.</div>
-    </div>
-  </section>
-  </div><!-- /chapter-2 -->
-
-  <!-- ══ CHAPTER 3 · WHY SOME STAY CLEAN ════════════════════ -->
-  <div class="chapter" id="chapter-3">
-    <div class="chapter-head">
-      <div class="chapter-kicker">Chapter 3</div>
-      <h2 class="chapter-title">Why do some busy states stay clean?</h2>
-      <p class="chapter-lead">Four patterns explain the anomalies — winds, cleaner fleets, transit and winter inversions. Click a card to jump to its evidence; pop the bubbles for bite-sized answers.</p>
-    </div>
-
-  <!-- ══ 04 · WHAT DID WE LEARN? ═════════════════════════════ -->
-  <section class="story-section" id="section-findings">
-    <div class="section-label">3a · What did we learn?</div>
-    <p class="section-lead">Putting the whole decade together, four patterns stand out. Click any card to jump straight to its evidence.</p>
-    <div class="discovery-grid">
-      <article class="dc3-card glass" data-dc="smog" data-preset="traffic-giants" tabindex="0" role="button" aria-label="Learning card: Traffic alone doesn't set pollution — click to flip for evidence">
-        <div class="dc3-inner">
-          <div class="dc3-face dc3-front">
-            <div class="dc3-badge" aria-hidden="true">🚙</div>
-            <div class="dc3-front-bottom">
-              <div class="dc3-headline">Traffic alone doesn't set pollution</div>
-              <div class="dc3-sub">The busiest roads aren't the dirtiest</div>
-              <div class="dc3-hint">Click to flip ↷</div>
-            </div>
-          </div>
-          <div class="dc3-face dc3-back">
-            <p class="dc3-back-body">States with the heaviest traffic are <b>not</b> automatically the most polluted.</p>
-            <div class="dc3-stat"><span class="dc3-stat-num">#1</span><span class="dc3-stat-label">busiest roads (California)</span><span class="dc3-stat-val">cleaner-half PM2.5/vehicle</span></div>
-            <button class="btn-finding dc3-evidence-btn" data-preset-btn="traffic-giants" type="button">View Chart Evidence ↓</button>
-          </div>
-        </div>
-      </article>
-
-      <article class="dc3-card glass" data-dc="frost" data-preset="clean-champions" tabindex="0" role="button" aria-label="Learning card: Geography and weather wildcards — click to flip for evidence">
-        <div class="dc3-inner">
-          <div class="dc3-face dc3-front">
-            <div class="dc3-badge" aria-hidden="true">🌬️</div>
-            <div class="dc3-front-bottom">
-              <div class="dc3-headline">Geography &amp; weather wildcards</div>
-              <div class="dc3-sub">Winds &amp; terrain do the heavy lifting</div>
-              <div class="dc3-hint">Click to flip ↷</div>
-            </div>
-          </div>
-          <div class="dc3-face dc3-back">
-            <p class="dc3-back-body">Pacific storms flush air west→east in <b>WA &amp; OR</b>; sea breezes vent <b>FL</b> offshore; valley walls trap it in <b>UT &amp; ID</b>.</p>
-            <div class="dc3-stat"><span class="dc3-stat-num">3</span><span class="dc3-stat-label">ventilation regimes</span><span class="dc3-stat-val">Coastal Wind Offset</span></div>
-            <button class="btn-finding dc3-evidence-btn" data-preset-btn="clean-champions" type="button">View Chart Evidence ↓</button>
-          </div>
-        </div>
-      </article>
-
-      <article class="dc3-card glass" data-dc="heat" data-preset="winter-inversions" tabindex="0" role="button" aria-label="Learning card: Seasonal weather inversions — click to flip for evidence">
-        <div class="dc3-inner">
-          <div class="dc3-face dc3-front">
-            <div class="dc3-badge" aria-hidden="true">❄️</div>
-            <div class="dc3-front-bottom">
-              <div class="dc3-headline">Seasonal weather inversions</div>
-              <div class="dc3-sub">Cold air lids trap winter exhaust</div>
-              <div class="dc3-hint">Click to flip ↷</div>
-            </div>
-          </div>
-          <div class="dc3-face dc3-back">
-            <p class="dc3-back-body">PM2.5 peaks <b>Dec–Jan</b>, bottoms out mid-summer — the inverse of the driving season.</p>
-            <div class="dc3-spark" aria-hidden="true">
-              <span style="--h:90%"></span><span style="--h:84%"></span><span style="--h:65%"></span><span style="--h:50%"></span><span style="--h:42%"></span><span style="--h:36%"></span><span style="--h:33%"></span><span style="--h:35%"></span><span style="--h:44%"></span><span style="--h:58%"></span><span style="--h:76%"></span><span style="--h:92%"></span>
-            </div>
-            <div class="dc3-stat"><span class="dc3-stat-num">Dec</span><span class="dc3-stat-label">annual pollution peak</span><span class="dc3-stat-val">≈3× the July low</span></div>
-            <button class="btn-finding dc3-evidence-btn" data-preset-btn="winter-inversions" type="button">View Chart Evidence ↓</button>
-          </div>
-        </div>
-      </article>
-
-      <article class="dc3-card glass" data-dc="rust" data-preset="hotspots-double-burden" tabindex="0" role="button" aria-label="Learning card: Decade improvement trends — click to flip for evidence">
-        <div class="dc3-inner">
-          <div class="dc3-face dc3-front">
-            <div class="dc3-badge" aria-hidden="true">⚡</div>
-            <div class="dc3-front-bottom">
-              <div class="dc3-headline">Decade improvement trends</div>
-              <div class="dc3-sub">Cleaner fleets, cleaner power, cleaner air</div>
-              <div class="dc3-hint">Click to flip ↷</div>
-            </div>
-          </div>
-          <div class="dc3-face dc3-back">
-            <p class="dc3-back-body">From 2015 → 2025, national PM2.5 trends <b>downward</b> even as traffic stayed high — driving is decoupling from dirty air.</p>
-            <div class="dc3-stat"><span class="dc3-stat-num">-35%</span><span class="dc3-stat-label">Emissions over the decade</span><span class="dc3-stat-val">while traffic held high</span></div>
-            <button class="btn-finding dc3-evidence-btn" data-preset-btn="hotspots-double-burden" type="button">View Chart Evidence ↓</button>
-          </div>
-        </div>
-      </article>
-    </div>
-    <div class="bubble-anchor bubble-arena" id="bubble-anchor-findings" role="group" aria-label="Floating insight bubbles � click to pop"></div>
-
-    <div class="can-can glass">
-      <div class="can"><b>✅ What we can say:</b> traffic levels and pollution levels are statistically associated; pollution peaks in winter; several high-traffic states stay comparatively clean.</div>
-      <div class="cant"><b>🚫 What we can't say:</b> that traffic <i>causes</i> pollution, or that any policy <i>caused</i> improvement — this dataset measures traffic counts and pollution readings, not vehicles, engines, or policies. Details in <a href="#section-advanced">Methodology</a>.</div>
-    </div>
-  </section>
-
-  <!-- ══ 05 · ADVANCED EXPLORATION ═══════════════════════════ -->
-  <section class="story-section advanced-section" id="section-advanced">
-    <div class="section-label">3b · Advanced Exploration <span class="adv-note">— deeper tools for curious readers</span></div>
-    <p class="section-lead">Everything here digs into the <b>same data at a finer grain</b>, behind the findings above. Useful questions to bring with you: which months drive each state's average, and do busy states stay clean <i>because of</i> their traffic levels or <i>in spite of them</i>? Remember: this data counts vehicles and measures pollution — it doesn't measure the vehicles themselves.</p>
-
-    <details class="adv-block glass" open>
-      <summary>🎛️ Compare specific states</summary>
-      <div class="adv-body">
-        <div class="state-select-row">
-          <select id="global-state" aria-label="Select state">
-            <option value="">All States</option>
-          </select>
-          <button id="clear-state-btn" class="btn-reset-year" aria-label="Clear state selection">Clear selection</button>
-        </div>
-        <p class="adv-explain">Selected states are highlighted on every chart above and get their own monthly journey cards below.</p>
-      </div>
-    </details>
-
-    <details class="adv-block glass" open>
-      <summary>🗓️ State × month patterns &amp; state journeys</summary>
-      <div class="adv-body">
-        <div class="duo-grid">
-          <div class="panel glass">
-            <div class="panel-head">
-              <div>
-                <div class="chart-title">Seasonal rhythm — state × month matrix</div>
-                <div class="chart-sub">Ranked most polluted → cleanest · click state rows to pin them</div>
-              </div>
-            </div>
-            <div id="heatmap-wrapper"></div>
-          </div>
-          <div class="panel glass">
-            <div class="panel-head">
-              <div>
-                <div class="chart-title">Side-by-side state journeys</div>
-                <div class="chart-sub">Monthly lines for selected states (top states shown by default)</div>
-              </div>
-            </div>
-            <div id="small-multiples-wrapper"></div>
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <details class="adv-block glass">
-      <summary>🔬 Methodology &amp; data notes</summary>
-      <div class="adv-body adv-methods">
-        <p><b>Data.</b> Monthly state-level averages, Jan 2015 – Dec 2025, joined from U.S. DOT FHWA traffic counts and EPA AirData monitoring (50 states + Washington, D.C.; 6,700 records). Reporting gaps (&lt;2.5%) are flagged, not imputed.</p>
-        <p><b>Pollution relative to traffic.</b> A <i>descriptive proxy</i>: PM2.5 divided by traffic volume. It helps separate busy-but-clean states from busy-and-polluted ones — it is <b>not</b> a direct measurement of vehicle maintenance, fleet age, or emissions technology.</p>
-        <p><b>Statistics.</b> The dashed line on the scatter plot is an ordinary least-squares fit; the correlation number compares state-average traffic with the selected metric. All values are state-level monthly averages — individual cities and roads can differ sharply, and state-level patterns do not describe any individual community.</p>
-        <p><b>Interpretation.</b> Every statement on this site is associative: higher traffic <i>tends to</i> accompany higher pollution on average. Nothing here establishes that traffic <i>causes</i> pollution or that fleet programs <i>cause</i> improvements — weather, geography, industry, and monitoring coverage all play a role.</p>
-      </div>
-    </details>
-  </section>
-  </div><!-- /chapter-3 -->
-  </main><!-- /.story-main -->
-
-  <!-- ══ STORY INSIGHTS SIDE PANEL ═══════════════════════════ -->
-  <aside class="insight-panel glass" id="insight-panel" aria-label="Story insights">
-    <div class="insight-head">
-      <div>
-        <div class="insight-title">Story Insights</div>
-        <div class="insight-sub">Follows your filters &amp; selection</div>
-      </div>
-      <button type="button" id="insight-close" class="insight-close" aria-label="Close insights panel">✕</button>
-    </div>
-    <!-- Moved from the page flow: audience sees charts first, context lives here -->
-    <details class="side-widget" open>
-      <summary>🎨 Full visual key</summary>
-      <div class="side-widget-body">
-        <div id="legend-panel"></div>
-      </div>
-    </details>
-
-    <details class="side-widget" open>
-      <summary>📊 National Pulse <span class="side-widget-hint" id="kpi-window-label">all years</span></summary>
-      <div class="side-widget-body">
+      <div class="pulse-block">
+        <div class="pulse-head">National pulse <span class="side-widget-hint" id="kpi-window-label">all years</span></div>
         <div id="kpi-strip" class="kpi-grid"></div>
       </div>
-    </details>
-    <div class="insight-tabs" id="insight-tabs" role="tablist" aria-orientation="vertical" aria-label="Insight topics"></div>
-    <div class="insight-content" id="insight-content" role="tabpanel" tabindex="0" aria-live="polite"></div>
-    <div class="insight-foot">Choose a topic — the narrative here updates with every filter change.</div>
-  </aside>
-  </div><!-- /.story-layout -->
+    </section>
+  </div>
 
-  <button type="button" id="insight-fab" class="insight-fab" aria-expanded="false" aria-controls="insight-panel">
-    <span aria-hidden="true">💡</span><span>Insights</span>
-  </button>
-  <div id="insight-backdrop" class="insight-backdrop" hidden></div>
+  <!-- ══ 03 · DOES TRAFFIC EXPLAIN POLLUTION? ══════════════════ -->
+  <div class="chapter" id="chapter-3">
+    <div class="chapter-head">
+      <div class="chapter-kicker"><span class="ghost-num" aria-hidden="true">03</span>The link</div>
+      <h2 class="chapter-title">Does traffic explain pollution?</h2>
+      <p class="chapter-lead">The core test. If traffic volume explained pollution, every state would
+        sit close to the trend line. Watch how many don't — <b>that gap is where the real story lives.</b></p>
+    </div>
 
-  <!-- ══ FOOTER ══════════════════════════════════════════════ -->
+    <section class="story-section" id="section-relationships">
+      <div class="scatter-layout">
+        <div class="panel chart-hero">
+          <div class="panel-head">
+            <div>
+              <div class="chart-title">Traffic volume vs. pollution, state by state</div>
+              <div class="chart-sub">One dot = one state, averaged over the selected window · dashed line = overall trend · click a dot to select it</div>
+            </div>
+          </div>
+          <div id="scatter-wrapper"></div>
+        </div>
+        <aside class="scatter-notes" aria-label="How to read the scatter plot">
+          <div class="note-block">
+            <div class="note-kicker">The relationship</div>
+            <p>Traffic and pollution move together <b>only weakly</b>. Busier states do tend toward
+              higher readings — but traffic explains only a fraction of the difference.</p>
+          </div>
+          <div class="note-block">
+            <div class="note-kicker">The outliers</div>
+            <p><span class="anomaly-inline">Mint dots</span> are <b>busy-but-clean</b> states: heavy traffic,
+              comparatively light pollution. They are the reason this story doesn't end at a trend line.</p>
+          </div>
+          <div class="takeaway" id="scatter-takeaway">Traffic is only part of the story — some of the busiest states keep their air relatively clean.</div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══ 04 · WHY SOME STATES STAY CLEANER ═════════════════════ -->
+  <div class="chapter" id="chapter-4">
+    <div class="chapter-head">
+      <div class="chapter-kicker"><span class="ghost-num" aria-hidden="true">04</span>Why some states stay cleaner</div>
+      <h2 class="chapter-title">Four patterns explain the outliers</h2>
+      <p class="chapter-lead">Putting the whole decade together, four explanations stand out.
+        Each one restages the charts above with the states that prove it.</p>
+    </div>
+
+    <section class="story-section" id="section-reasons">
+      <ol class="reason-list">
+        <li class="reason-row">
+          <span class="reason-num" aria-hidden="true">1</span>
+          <div class="reason-body">
+            <h3 class="reason-title">Traffic alone doesn't set pollution</h3>
+            <p class="reason-text">The states with the heaviest traffic are <b>not</b> automatically
+              the most polluted. California carries the nation's busiest roads yet sits in the
+              cleaner half on pollution relative to traffic.</p>
+          </div>
+          <button class="btn-quiet" data-preset-btn="traffic-giants" type="button">Show on the charts<span aria-hidden="true">→</span></button>
+        </li>
+        <li class="reason-row">
+          <span class="reason-num" aria-hidden="true">2</span>
+          <div class="reason-body">
+            <h3 class="reason-title">Geography and weather do the heavy lifting</h3>
+            <p class="reason-text">Pacific storms flush air west→east in <b>Washington &amp; Oregon</b>;
+              sea breezes vent <b>Florida</b> offshore; valley walls trap it in <b>Utah &amp; Idaho</b>.
+              Winds and terrain separate otherwise similar states.</p>
+          </div>
+          <button class="btn-quiet" data-preset-btn="clean-champions" type="button">Show on the charts<span aria-hidden="true">→</span></button>
+        </li>
+        <li class="reason-row">
+          <span class="reason-num" aria-hidden="true">3</span>
+          <div class="reason-body">
+            <h3 class="reason-title">Winter inversions trap exhaust</h3>
+            <p class="reason-text">PM2.5 peaks in <b>December–January</b> and bottoms out mid-summer —
+              the inverse of the driving season. Cold-air lids in mountain valleys hold tailpipe
+              emissions near the ground.</p>
+          </div>
+          <button class="btn-quiet" data-preset-btn="winter-inversions" type="button">Show on the charts<span aria-hidden="true">→</span></button>
+        </li>
+        <li class="reason-row">
+          <span class="reason-num" aria-hidden="true">4</span>
+          <div class="reason-body">
+            <h3 class="reason-title">A decade of improvement</h3>
+            <p class="reason-text">From 2015 → 2025, national PM2.5 trends <b>downward</b> even as traffic
+              stayed high — driving is slowly decoupling from dirty air. Industrial corridors like
+              the Midwest still carry a double burden.</p>
+          </div>
+          <button class="btn-quiet" data-preset-btn="hotspots-double-burden" type="button">Show on the charts<span aria-hidden="true">→</span></button>
+        </li>
+      </ol>
+      <p class="reason-caveat"><b>What we can say:</b> traffic and pollution levels are statistically associated.
+        <b>What we can't say:</b> that traffic <i>causes</i> pollution — this dataset measures traffic counts and
+        pollution readings, not vehicles or engines. Details in <a href="#methods">Methodology</a>.</p>
+    </section>
+  </div>
+
+  <!-- ══ 05 · EXPLORE REGIONAL DIFFERENCES ═════════════════════ -->
+  <div class="chapter" id="chapter-5">
+    <div class="chapter-head">
+      <div class="chapter-kicker"><span class="ghost-num" aria-hidden="true">05</span>Explore regional differences</div>
+      <h2 class="chapter-title">Compare states side by side</h2>
+      <p class="chapter-lead">Choose the states you care about and dig into the same data at a
+        finer grain — which months drive each state's average, and whether busy states stay
+        clean <i>because of</i> their traffic or <i>in spite of it</i>.</p>
+    </div>
+
+    <section class="story-section advanced-section" id="section-advanced">
+      <div class="panel compare-picker">
+        <div class="control-group control-inline">
+          <label for="global-state">State</label>
+          <div class="state-select-row">
+            <select id="global-state" aria-label="Select state">
+              <option value="">All States</option>
+            </select>
+            <button id="clear-state-btn" class="btn-ghost" aria-label="Clear state selection">Clear selection</button>
+          </div>
+        </div>
+        <p class="compare-hint">Selected states are highlighted on every chart above and get their own monthly journey below.</p>
+      </div>
+
+      <div class="duo-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="chart-title">Seasonal rhythm — state × month matrix</div>
+              <div class="chart-sub">Ranked most polluted → cleanest · click state rows to pin them</div>
+            </div>
+          </div>
+          <div id="heatmap-wrapper"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="chart-title">Side-by-side state journeys</div>
+              <div class="chart-sub">Monthly lines for selected states (top states shown by default)</div>
+            </div>
+          </div>
+          <div id="small-multiples-wrapper"></div>
+        </div>
+      </div>
+
+      <details class="methods-block" id="methods">
+        <summary>Methodology &amp; data notes</summary>
+        <div class="adv-methods">
+          <p><b>Data.</b> Monthly state-level averages, Jan 2015 – Dec 2025, joined from U.S. DOT FHWA traffic counts and EPA AirData monitoring (50 states + Washington, D.C.; 6,700 records). Reporting gaps (&lt;2.5%) are flagged, not imputed.</p>
+          <p><b>Pollution relative to traffic.</b> A <i>descriptive proxy</i>: PM2.5 divided by traffic volume. It helps separate busy-but-clean states from busy-and-polluted ones — it is <b>not</b> a direct measurement of vehicle maintenance, fleet age, or emissions technology.</p>
+          <p><b>Statistics.</b> The dashed line on the scatter plot is an ordinary least-squares fit; the correlation number compares state-average traffic with the selected metric. All values are state-level monthly averages — individual cities and roads can differ sharply, and state-level patterns do not describe any individual community.</p>
+          <p><b>Interpretation.</b> Every statement on this site is associative: higher traffic <i>tends to</i> accompany higher pollution on average. Nothing here establishes that traffic <i>causes</i> pollution or that fleet programs <i>cause</i> improvements — weather, geography, industry, and monitoring coverage all play a role.</p>
+        </div>
+      </details>
+    </section>
+  </div>
+
+  </main>
+
+  <!-- ══ FOOTER ═══════════════════════════════════════════════ -->
   <footer class="footer">
     <div class="footer-chips">
       <span class="chip">EPA AirData</span>
@@ -401,9 +305,8 @@
       <span class="chip">6,700 state-month records</span>
       <span class="chip">50 states + Washington, D.C.</span>
       <span class="chip">2015–2025</span>
-      <span class="chip">Retrieved 2026</span>
     </div>
-    <p class="footer-note">Reporting gaps (&lt;2.5%) flagged, not imputed · "Pollution relative to traffic" = PM2.5 per 1,000 vehicles — a descriptive proxy, not a direct measure of fleet cleanliness · all findings are associative, not causal.</p>
+    <p class="footer-note">"Pollution relative to traffic" = PM2.5 per 1,000 vehicles — a descriptive proxy, not a direct measure of fleet cleanliness · all findings are associative, not causal.</p>
   </footer>
 </div><!-- /.page-wrap -->
 <script type="module" src="js/main.js"></script>

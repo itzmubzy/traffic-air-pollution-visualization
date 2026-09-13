@@ -151,6 +151,7 @@ export function setInsightError(message) {
 }
 
 function openPanel() {
+  if (!panel) return;   // side panel removed in the redesign — stay silent
   lastTrigger = document.activeElement;
   panel.classList.add('is-open');
   panel.removeAttribute('hidden');
